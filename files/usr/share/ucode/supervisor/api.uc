@@ -5,7 +5,7 @@ import * as core from 'supervisor.core';
 import * as jobs from 'supervisor.jobs';
 import * as cfgm from 'supervisor.config';
 import * as docker from 'supervisor.docker';
-import { popen, readfile } from 'fs';
+import { popen, readfile, lsdir, readlink } from 'fs';
 import { connect } from 'ubus';
 
 const ARCH = 'armv7';
@@ -109,6 +109,49 @@ function os_info() {
 	         board: null, boot: null, data_disk: null, boot_slots: {} };
 };
 
+// Real serial ports (USB sticks and on-SoC UARTs such as ttymxc*) in the Supervisor
+// hardware/info shape. Built from sysfs so phantom 8250 nodes and ptys are skipped,
+// and the kernel console (it is in use by the system) is left out.
+function hardware_info() {
+	let by_id = {};
+	for (let n in lsdir('/dev/serial/by-id') ?? []) {
+		let t = readlink('/dev/serial/by-id/' + n);
+		if (t) by_id[replace(t, /^.*\//, '')] = '/dev/serial/by-id/' + n;
+	}
+	let consoles = {};
+	for (let l in split(readfile('/proc/consoles') ?? '', '\n')) {
+		let m = match(l, /^(\S+)/);
+		if (m) consoles[m[1]] = true;
+	}
+	let devnodes = lsdir('/dev') ?? [];
+	let devices = [];
+	for (let n in sort(lsdir('/sys/class/tty') ?? [])) {
+		let base = '/sys/class/tty/' + n;
+		if (!readlink(base + '/device') || consoles[n])
+			continue;
+		let type = readfile(base + '/type');
+		if (type != null && trim(type) == '0')   // unconfigured 8250 slot
+			continue;
+		if (!(n in devnodes))
+			continue;
+		let t = readlink(base) ?? '';
+		push(devices, { name: n, sysfs: '/sys/' + replace(t, /^(\.\.\/)+/, ''), dev_path: '/dev/' + n,
+		                subsystem: 'tty', parent: null, by_id: by_id[n], attributes: {}, children: [] });
+	}
+	return { devices };
+};
+
+// System log as plain text. Supervisor clients ask for N lines via `Range: entries=:-N:`.
+function host_logs(headers) {
+	let n = 100;
+	let m = match(headers?.range ?? '', /^entries=[^:]*:-?([0-9]+):/);
+	if (m) n = min(+m[1] || 100, 5000);
+	let p = popen(`logread -l ${n} 2>&1`, 'r');
+	let out = p ? p.read('all') : '';
+	if (p) p.close();
+	return out;
+};
+
 const STATIC = {
 	'/store': { addons: [], repositories: [] },
 	'/addons': { addons: [] },
@@ -119,6 +162,8 @@ const STATIC = {
 	'/resolution/info': { suggestions: [], unsupported: [], unhealthy: [], issues: [], checks: [] },
 	'/jobs/info': { ignore_conditions: [], jobs: [] },
 	'/available_updates': { available_updates: [] },
+	'/backups': { backups: [] },
+	'/backups/info': { backups: [], days_until_stale: 30 },
 	'/discovery': { discovery: [], services: {} },
 	'/ingress/panels': { panels: {} }
 };
@@ -126,9 +171,9 @@ const STATIC = {
 // POST endpoints that are accepted and ignored.
 const NOOP_POST = ['/core/options', '/core/check', '/supervisor/reload', '/supervisor/repair',
                    '/supervisor/options', '/host/reload', '/store/reload', '/network/reload',
-                   '/reload_updates', '/resolution/healthcheck', '/jobs/options', '/jobs/reset'];
+                   '/reload_updates', '/resolution/healthcheck', '/backups/options', '/backups/reload', '/backups/freeze', '/backups/thaw', '/jobs/options', '/jobs/reset'];
 
-export function handle(method, path, body) {
+export function handle(method, path, body, headers) {
 	let cfg = cfgm.load();
 	path = replace(path, /\/+$/, '') || '/';
 
@@ -141,6 +186,7 @@ export function handle(method, path, body) {
 	case 'GET /core/stats':         return ok(stats(core.stats()));
 	case 'GET /host/info':          return ok(host_info(cfg));
 	case 'GET /os/info':            return ok(os_info());
+	case 'GET /hardware/info':      return ok(hardware_info());
 	case 'POST /core/update': {
 		let tag = body?.version;
 		if (tag != null && !match(tag, /^[A-Za-z0-9._-]+$/))
@@ -173,6 +219,12 @@ export function handle(method, path, body) {
 		return ok();
 	}
 
+	if (method == 'GET' && path == '/host/logs/boots')
+		return ok({ boots: { '0': 'current' } });
+	if (method == 'GET' && path == '/host/logs/identifiers')
+		return ok({ identifiers: [] });
+	if (method == 'GET' && match(path, /^\/host\/logs(\/(boots\/[^\/]+|latest|identifiers\/[^\/]+))*(\/follow)?$/))
+		return { code: 200, text: host_logs(headers) };
 	if (method == 'GET' && STATIC[path])
 		return ok(STATIC[path]);
 	if (method == 'POST' && (path in NOOP_POST))
