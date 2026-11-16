@@ -16,6 +16,7 @@ const DEFAULTS = {
 	registry_user: '',
 	registry_pass: '',
 	cache_ttl: '3600',
+	bridge_ip: '172.17.0.1',               // docker bridge gateway: add-ons reach the API here
 	catalog: '/usr/share/owrt-supervisor/catalog.json',   // add-on catalog (StoreInfo JSON)
 	devices: [],                          // list of /dev/... passthrough
 	backup_before_update: '1'

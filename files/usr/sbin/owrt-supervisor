@@ -4,6 +4,7 @@ import * as core from 'supervisor.core';
 import * as jobs from 'supervisor.jobs';
 import * as cfgm from 'supervisor.config';
 import * as registry from 'supervisor.registry';
+import * as addons from 'supervisor.addons';
 
 let args = [...ARGV];
 let job;
@@ -41,6 +42,32 @@ case 'start':   out({ ok: core.start() }); break;
 case 'stop':    out({ ok: core.stop() }); break;
 case 'restart': out({ ok: core.restart() }); break;
 case 'logs':    print(core.logs(+(args[0] ?? 200))); break;
+case 'addons':
+	out(addons.installed_list(cfgm.load()));
+	break;
+case 'addon-install': {
+	let r = addons.install(args[0], job);
+	out(r);
+	exit(r.ok ? 0 : 1);
+}
+case 'addon-uninstall':
+	out(addons.uninstall(args[0]));
+	break;
+case 'addon-start':   out({ ok: addons.start(args[0]) }); break;
+case 'addon-stop':    out({ ok: addons.stop(args[0]) }); break;
+case 'addon-restart': out({ ok: addons.restart(args[0]) }); break;
+case 'addon-logs':    print(addons.logs(args[0], +(args[1] ?? 200))); break;
+case 'addon-options':
+	// owrt-supervisor addon-options <slug> '<json>'   (omit json to print current options)
+	if (args[1] == null) {
+		out(addons.options(args[0]) ?? 'not installed');
+	} else {
+		let o;
+		try { o = json(args[1]); } catch (e) { o = null; }
+		if (type(o) != 'object') { warn('options must be a JSON object\n'); exit(2); }
+		out({ ok: addons.set_options(args[0], o) });
+	}
+	break;
 case 'tags': {
 	let c = registry.check(cfgm.load(), true);
 	out(c ?? 'registry unreachable');
@@ -52,6 +79,6 @@ case 'set-source':
 	out({ image: args[0] });
 	break;
 default:
-	warn('usage: owrt-supervisor status|check|update [tag]|ensure|start|stop|restart|logs [n]|tags|set-source <image>\n');
+	warn('usage: owrt-supervisor status|check|update [tag]|ensure|start|stop|restart|logs [n]|tags|set-source <image>\n       owrt-supervisor addons|addon-install|addon-uninstall|addon-start|addon-stop|addon-restart|addon-logs|addon-options <slug> [json]\n');
 	exit(2);
 }

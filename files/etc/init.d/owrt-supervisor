@@ -20,4 +20,14 @@ start_service() {
 		"EXEC:/usr/sbin/owrt-supervisor-http"
 	procd_set_param respawn
 	procd_close_instance
+
+	# same API on the docker bridge gateway, for add-on containers (token-restricted)
+	local bridge
+	bridge="$(uci -q get owrt-supervisor.main.bridge_ip)"; bridge="${bridge:-172.17.0.1}"
+	procd_open_instance api_bridge
+	procd_set_param command /usr/bin/socat -t0.1 \
+		"TCP-LISTEN:$port,bind=$bridge,reuseaddr,fork" \
+		"EXEC:/usr/sbin/owrt-supervisor-http"
+	procd_set_param respawn
+	procd_close_instance
 }

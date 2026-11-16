@@ -5,6 +5,7 @@ import { stdin, stdout } from 'fs';
 import * as fsm from 'fs';
 import * as api from 'supervisor.api';
 import * as cfgm from 'supervisor.config';
+import * as addons from 'supervisor.addons';
 
 function reply(code, ctype, text) {
 	stdout.write(`HTTP/1.0 ${code} X\r\nContent-Type: ${ctype}\r\nContent-Length: ${length(text)}\r\nConnection: close\r\n\r\n${text}`);
@@ -28,7 +29,15 @@ while ((line = stdin.read('line')) != null) {
 }
 
 let cfg = cfgm.load();
-if (!cfg.token || headers.authorization != `Bearer ${cfg.token}`) {
+// Bearer token, or X-Supervisor-Token (sent by nginx inside add-ons). Supervisor token = full
+// access; an add-on token only identifies that add-on and is restricted in api.handle().
+let tok = headers['x-supervisor-token'];
+if (!tok) {
+	let m2 = match(headers.authorization ?? '', /^Bearer (.+)$/);
+	tok = m2 ? m2[1] : null;
+}
+let principal = (cfg.token && tok == cfg.token) ? 'supervisor' : addons.by_token(tok);
+if (!principal) {
 	reply(401, 'application/json', '{"result":"error","message":"unauthorized"}');
 	exit(0);
 }
@@ -50,7 +59,7 @@ if (length(raw)) {
 	try { body = json(raw); } catch (e) { body = null; }
 }
 
-let r = api.handle(method, path, body, headers);
+let r = api.handle(method, path, body, headers, principal);
 // tiny access log in tmpfs; truncated when it grows past ~64 KiB
 let lf = fsm.open('/var/run/owrt-supervisor/access.log', 'a');
 if (lf) {

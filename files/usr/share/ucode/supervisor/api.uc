@@ -5,7 +5,9 @@ import * as core from 'supervisor.core';
 import * as jobs from 'supervisor.jobs';
 import * as cfgm from 'supervisor.config';
 import * as docker from 'supervisor.docker';
+import * as addons from 'supervisor.addons';
 import { popen, readfile, lsdir, readlink } from 'fs';
+import { rand } from 'math';
 import { connect } from 'ubus';
 
 const ARCH = 'armv7';
@@ -56,12 +58,7 @@ function disk_usage(cfg) {
 	] };
 };
 
-// Add-on catalog: a pre-rendered StoreInfo. Browse only; add-ons cannot be installed here.
-function catalog(cfg) {
-	let c;
-	try { c = json(readfile(cfg.catalog) ?? ''); } catch (e) { c = null; }
-	return { addons: c?.addons ?? [], repositories: c?.repositories ?? [] };
-};
+function catalog(cfg) { return addons.catalog(cfg); };
 
 function channel(cfg) { return 'stable'; };
 
@@ -178,7 +175,6 @@ function host_logs(headers) {
 };
 
 const STATIC = {
-	'/addons': { addons: [] },
 	'/network/info': { interfaces: [],
 	                   docker: { interface: 'docker0', address: '172.17.0.0/16', gateway: '172.17.0.1', dns: '172.17.0.1' },
 	                   host_internet: true, supervisor_internet: true },
@@ -197,9 +193,23 @@ const NOOP_POST = ['/core/options', '/core/check', '/supervisor/reload', '/super
                    '/supervisor/options', '/host/reload', '/store/reload', '/network/reload',
                    '/reload_updates', '/resolution/healthcheck', '/backups/options', '/backups/reload', '/backups/freeze', '/backups/thaw', '/jobs/options', '/jobs/reset'];
 
-export function handle(method, path, body, headers) {
+// Add-on tokens may only use their own /addons/self subtree plus discovery/services/auth.
+function allowed_for_addon(path, slug) {
+	let own = '/addons/' + slug;
+	return path == own || index(path, own + '/') == 0 ||
+	       match(path, /^\/(discovery|services|auth)(\/|$)/) || path == '/supervisor/ping' || path == '/info';
+};
+
+export function handle(method, path, body, headers, principal) {
 	let cfg = cfgm.load();
 	path = replace(path, /\/+$/, '') || '/';
+	principal ??= 'supervisor';
+	if (principal != 'supervisor') {
+		if (path == '/addons/self' || index(path, '/addons/self/') == 0)
+			path = '/addons/' + principal + substr(path, length('/addons/self'));
+		if (!allowed_for_addon(path, principal))
+			return err(403, 'forbidden for add-on tokens');
+	}
 
 	switch (`${method} ${path}`) {
 	case 'GET /supervisor/ping':    return ok();
@@ -258,9 +268,81 @@ export function handle(method, path, body, headers) {
 	if (method == 'POST' && (path in NOOP_POST))
 		return ok();
 
-	// Add-ons are catalog-only: say so explicitly instead of a generic 404.
-	if (match(path, /^\/store\/addons\/[^\/]+(\/(install|update|availability))?$/))
-		return err(400, 'Add-ons can only be browsed here: installing them is not supported by owrt-supervisor');
+	// --- add-ons -------------------------------------------------------------------------
+	if (method == 'GET' && path == '/addons')
+		return ok({ addons: addons.installed_list(cfg) });
+
+	let am = match(path, /^\/addons\/([A-Za-z0-9_]+)(\/.*)?$/);
+	if (am) {
+		let slug = am[1], sub = am[2] ?? '/info';
+		if (slug == 'self')
+			return err(404, 'no add-on context');
+		if (!addons.state().addons[slug])
+			return err(404, `Add-on ${slug} is not installed`);
+		switch (`${method} ${sub}`) {
+		case 'GET /info':           return ok(addons.complete(cfg, slug));
+		case 'POST /start':         return addons.start(slug) ? ok() : err(500, 'start failed');
+		case 'POST /stop':          return addons.stop(slug) ? ok() : err(500, 'stop failed');
+		case 'POST /restart':       return addons.restart(slug) ? ok() : err(500, 'restart failed');
+		case 'POST /uninstall': {
+			let r = addons.uninstall(slug);
+			return r.ok ? ok() : err(500, r.error);
+		}
+		case 'GET /options/config': return ok(addons.options(slug) ?? {});
+		case 'POST /options':
+			if (type(body?.options) != 'object')
+				return err(400, 'options object required');
+			return addons.set_options(slug, body.options) ? ok() : err(500, 'cannot set options');
+		case 'GET /logs':           return { code: 200, text: addons.logs(slug, 200) };
+		case 'GET /stats':          return ok(stats(addons.stats(slug)));
+		}
+		return err(404, 'not supported');
+	}
+
+	let sm = match(path, /^\/store\/addons\/([A-Za-z0-9_]+)(\/(install|update|availability))?$/);
+	if (sm) {
+		let slug = sm[1], act = sm[3];
+		if (!addons.find(cfg, slug))
+			return err(404, `Add-on ${slug} does not exist`);
+		if (!act && method == 'GET')
+			return ok(addons.complete(cfg, slug));
+		if (act == 'availability' && method == 'GET')
+			return ok();
+		if (act == 'update')
+			return err(400, 'The add-on catalog is a frozen snapshot: updates are not available');
+		if (act == 'install' && method == 'POST') {
+			let id = jobs.spawn('addon-install', slug);
+			if (body?.background)
+				return ok({ job_id: id });
+			for (let i = 0; i < 1800; i++) {      // up to ~1 h, like a blocking Supervisor call
+				let j = jobs.get(id);
+				if (j?.done)
+					return length(j.errors ?? []) ? err(500, j.errors[0]) : ok({ job_id: id });
+				system('sleep 2');
+			}
+			return err(504, 'install timed out');
+		}
+	}
+
+	// --- services / discovery / auth (called by add-ons) -----------------------------------
+	if (path == '/services/mqtt') {
+		if (method == 'POST' && principal != 'supervisor' && type(body) == 'object') {
+			addons.service_publish('mqtt', principal, body);
+			return ok();
+		}
+		if (method == 'DELETE') { addons.service_delete('mqtt'); return ok(); }
+		if (method == 'GET') {
+			let sv = addons.service_get('mqtt');
+			if (!sv) return err(400, 'no MQTT service available');
+			let d = { addon: sv.addon };
+			for (let k, v in sv.config) d[k] = v;
+			return ok(d);
+		}
+	}
+	if (method == 'POST' && path == '/discovery' && type(body) == 'object')
+		return ok({ uuid: sprintf('%08x%08x', time(), rand()) });
+	if (method == 'POST' && path == '/auth')
+		return err(401, 'Unauthorized');
 
 	let m = match(path, /^\/jobs\/([a-z0-9-]+)$/);
 	if (method == 'GET' && m) {

@@ -7,12 +7,16 @@ needs no YAML parser. Only add-ons that declare the target architecture are kept
     git clone https://github.com/home-assistant/addons && git -C addons checkout b9b856c9
     python3 -I tools/build_catalog.py addons armv7 > files/usr/share/owrt-supervisor/catalog.json
 
+Each entry also carries `spec`: the add-on's parsed config.yaml, used by the supervisor to
+create the container (image, ports, map, options, ...). Requires PyYAML (build host only).
+
 The checkout is untrusted input: it is only read, never executed.
 """
 import json
 import pathlib
-import re
 import sys
+
+import yaml  # safe_load only
 
 REPO = {
     "slug": "core",
@@ -23,47 +27,34 @@ REPO = {
 }
 
 
-def scalar(text, key):
-    m = re.search(rf'^{key}:[ ]*"?([^"\n#]+?)"?[ ]*(?:#.*)?$', text, re.M)
-    return m.group(1).strip() if m else None
-
-
-def arch_list(text):
-    m = re.search(r'^arch:[ ]*\[([^\]]*)\]', text, re.M)
-    if m:
-        return [a.strip().strip("\"'") for a in m.group(1).split(",") if a.strip()]
-    m = re.search(r'^arch:[ ]*\n((?:[ ]*-[ ]*\S+[ ]*\n)+)', text, re.M)
-    return re.findall(r'-[ ]*(\S+)', m.group(1)) if m else []
-
-
 def main(root, arch):
     addons = []
     for cfg in sorted(pathlib.Path(root).glob("*/config.yaml")):
-        text = cfg.read_text()
-        archs = arch_list(text)
-        slug = scalar(text, "slug") or cfg.parent.name
-        if arch not in archs or not scalar(text, "version"):
+        c = yaml.safe_load(cfg.read_text())
+        if not isinstance(c, dict) or arch not in (c.get("arch") or []) or not c.get("version"):
             continue
         d = cfg.parent
+        slug = str(c.get("slug") or d.name)
         addons.append({
             "advanced": False,
             "available": True,
             "build": False,
-            "description": scalar(text, "description") or "",
-            "homeassistant": scalar(text, "homeassistant"),
+            "description": str(c.get("description") or ""),
+            "homeassistant": c.get("homeassistant"),
             "icon": False,   # icon/logo are served by Supervisor per add-on; not provided here
             "logo": False,
-            "name": scalar(text, "name") or slug,
+            "name": str(c.get("name") or slug),
             "repository": REPO["slug"],
             "slug": f"{REPO['slug']}_{slug}",
-            "stage": scalar(text, "stage") or "stable",
+            "stage": str(c.get("stage") or "stable"),
             "update_available": False,
-            "url": scalar(text, "url"),
-            "version_latest": scalar(text, "version"),
+            "url": c.get("url"),
+            "version_latest": str(c["version"]),
             "version": None,
-            "arch": archs,
+            "arch": c.get("arch"),
             "documentation": (d / "DOCS.md").exists(),
             "installed": False,
+            "spec": c,
         })
     json.dump({"addons": addons, "repositories": [REPO]}, sys.stdout, indent=1, ensure_ascii=False)
     print()
