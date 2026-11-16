@@ -16,10 +16,12 @@ const DEFAULTS = {
 	registry_user: '',
 	registry_pass: '',
 	cache_ttl: '3600',
+	core_socket: '/var/run/owrt-supervisor/core/core.sock',   // HA's Supervisor-only unix socket (host side)
 	bridge_ip: '172.17.0.1',               // docker bridge gateway: add-ons reach the API here
 	catalog: '/usr/share/owrt-supervisor/catalog.json',   // add-on catalog (StoreInfo JSON)
 	devices: [],                          // list of /dev/... passthrough
-	backup_before_update: '1'
+	backup_before_update: '0',            // policy when the caller does not say; request flag wins
+	backup_dir: '/mnt/docker/owrt-backups',
 };
 
 export function load() {

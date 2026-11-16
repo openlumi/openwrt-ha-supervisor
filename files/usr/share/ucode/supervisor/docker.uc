@@ -83,13 +83,16 @@ export function health(name) {
 
 // Build a container spec matching the upstream docker-compose of HA-ARMv7.
 export function core_spec(cfg, image_ref, sup_token) {
+	let sockdir = replace(cfg.core_socket, /\/[^\/]*$/, '');
 	let devs = map(cfg.devices, d => ({ PathOnHost: d, PathInContainer: d, CgroupPermissions: 'rwm' }));
 	return {
 		Image: image_ref,
 		Env: [
 			`TZ=${cfg.timezone}`,
 			`SUPERVISOR=127.0.0.1:${cfg.port}`,
-			`SUPERVISOR_TOKEN=${sup_token}`
+			`SUPERVISOR_TOKEN=${sup_token}`,
+			// HA opens this unix socket and trusts it as the Supervisor user (discovery push)
+			'SUPERVISOR_CORE_API_SOCKET=/run/supervisor-core/core.sock'
 		],
 		Labels: { 'owrt.supervisor': 'core' },
 		HostConfig: {
@@ -98,7 +101,8 @@ export function core_spec(cfg, image_ref, sup_token) {
 			RestartPolicy: { Name: 'unless-stopped' },
 			Binds: [
 				`${cfg.config_dir}:/config`,
-				'/run/dbus:/run/dbus:ro'   // timezone comes from TZ (/etc/localtime is a symlink on OpenWrt)
+				'/run/dbus:/run/dbus:ro',   // timezone comes from TZ (/etc/localtime is a symlink on OpenWrt)
+				sockdir + ':/run/supervisor-core'
 			],
 			Devices: devs
 		},

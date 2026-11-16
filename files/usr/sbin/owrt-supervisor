@@ -25,7 +25,13 @@ case 'check':
 	out(core.info(null, true));
 	break;
 case 'update': {
-	let r = core.update(args[0], job);
+	// owrt-supervisor update [tag] [--backup|--no-backup]
+	let backup = null;
+	let bi = index(args, '--backup');
+	if (bi >= 0) { backup = true; splice(args, bi, 1); }
+	bi = index(args, '--no-backup');
+	if (bi >= 0) { backup = false; splice(args, bi, 1); }
+	let r = core.update(args[0], job, backup);
 	out(r);
 	exit(r.ok ? 0 : 1);
 }
@@ -42,6 +48,15 @@ case 'start':   out({ ok: core.start() }); break;
 case 'stop':    out({ ok: core.stop() }); break;
 case 'restart': out({ ok: core.restart() }); break;
 case 'logs':    print(core.logs(+(args[0] ?? 200))); break;
+case 'discovery-push': {
+	// HA may still be starting: retry for a few minutes
+	for (let i = 0; i < 20; i++) {
+		if (addons.discovery_push(args[0])) { out({ ok: true }); exit(0); }
+		system('sleep 15');
+	}
+	warn('discovery-push: HA did not accept the notification\n');
+	exit(1);
+}
 case 'addons':
 	out(addons.installed_list(cfgm.load()));
 	break;

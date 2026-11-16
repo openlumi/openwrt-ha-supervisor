@@ -4,7 +4,7 @@ import * as docker from 'supervisor.docker';
 import * as registry from 'supervisor.registry';
 import * as jobs from 'supervisor.jobs';
 import { load, STATE_DIR } from 'supervisor.config';
-import { mkdir } from 'fs';
+import { mkdir, writefile } from 'fs';
 
 function image_ref(cfg, tag) { return `${cfg.image}:${tag}`; }
 
@@ -52,15 +52,29 @@ function wait_healthy(cfg) {
 	return false;
 };
 
+// Config backup before an upgrade: tar of the HA config dir (without caches), kept outside
+// /etc on the big volume; only the newest 3 are kept. Returns false on failure.
 function backup_config(cfg, ver) {
-	if (cfg.backup_before_update != '1') return true;
+	let dir = cfg.backup_dir;
+	if (system(`mkdir -p '${dir}'`) != 0)
+		return false;
+	let f = `${dir}/backup-${ver ?? 'x'}-${time()}.tar.gz`;
+	// busybox tar has no --exclude, only -X FILE
+	let ex = STATE_DIR + '/backup.exclude';
 	mkdir(STATE_DIR);
-	let f = `${cfg.config_dir}/../backup-${ver ?? 'x'}-${time()}.tar.gz`;
-	return system(`tar -czf '${f}' -C '${cfg.config_dir}' . 2>/dev/null`) == 0;
+	writefile(ex, './.cache\n./deps\n');
+	let rc = system(`tar -czf '${f}' -X '${ex}' -C '${cfg.config_dir}' . 2>/dev/null`);
+	if (rc != 0) {
+		system(`rm -f '${f}'`);
+		return false;
+	}
+	system(`ls -1t '${dir}'/backup-*.tar.gz 2>/dev/null | tail -n +4 | xargs -r rm -f`);
+	return true;
 };
 
 // Install/update to `tag`. `job` is an optional job id for progress reporting.
-export function update(tag, job) {
+// `backup`: true/false from the caller (HA's "backup before update" checkbox), null = use policy.
+export function update(tag, job, backup) {
 	let cfg = load();
 	let token = cfg.token;
 	function step(stage, pct) { if (job) jobs.update(job, { stage, progress: pct }); }
@@ -85,8 +99,13 @@ export function update(tag, job) {
 	let p = docker.pull(cfg.image, tag);
 	if (!p.ok) return fail('pull failed: ' + p.error);
 
-	step('backup', 50);
-	backup_config(cfg, old_tag);
+	// A backup only protects against irreversible migrations on a version change.
+	let want_backup = backup ?? (cfg.backup_before_update == '1');
+	if (want_backup && existing && old_tag != tag) {
+		step('backup', 50);
+		if (!backup_config(cfg, old_tag))
+			return fail('backup failed, update aborted');
+	}
 
 	step('switching', 60);
 	let old = cfg.container + '_old';
@@ -96,6 +115,8 @@ export function update(tag, job) {
 		docker.stop(cfg.container);
 		docker.rename(cfg.container, old);
 	}
+	mkdir(STATE_DIR);
+	mkdir(replace(cfg.core_socket, /\/[^\/]*$/, ''));   // host side of HA's supervisor socket
 	let created = false;
 	let r = docker.create(cfg.container, docker.core_spec(cfg, image_ref(cfg, tag), token));
 	if (r.ok) {

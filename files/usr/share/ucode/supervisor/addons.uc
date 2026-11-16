@@ -5,6 +5,7 @@
 // per-add-on SUPERVISOR_TOKEN that is only valid for /addons/self, /discovery, /services, /auth.
 import * as docker from 'supervisor.docker';
 import * as jobs from 'supervisor.jobs';
+import * as http from 'supervisor.http';
 import { load } from 'supervisor.config';
 import { readfile, writefile, mkdir, popen } from 'fs';
 
@@ -48,12 +49,14 @@ export function by_token(tok) {
 	return null;
 };
 
-function new_token() {
-	let p = popen("head -c 24 /dev/urandom | hexdump -v -e '/1 \"%02x\"'", 'r');
+function rand_hex(bytes) {
+	let p = popen(`head -c ${bytes} /dev/urandom | hexdump -v -e '/1 "%02x"'`, 'r');
 	let t = p ? trim(p.read('all')) : '';
 	if (p) p.close();
-	return length(t) == 48 ? t : null;
+	return length(t) == bytes * 2 ? t : null;
 };
+
+function new_token() { return rand_hex(24); };
 
 function copy(v) { return json(sprintf('%J', v)); };
 
@@ -310,7 +313,17 @@ export function installed_list(cfg) {
 
 // --- services / discovery (stored as published by add-ons) ---------------------------------
 
+// Add-ons advertise their container hostname, which only resolves on a Supervisor network.
+// HA runs on the host network, so point it at the published port on localhost instead.
+function fix_host(slug, config) {
+	let c = copy(config ?? {});
+	if (c.host == replace(slug, '_', '-'))
+		c.host = '127.0.0.1';
+	return c;
+};
+
 export function service_publish(name, slug, config) {
+	config = fix_host(slug, config);
 	let st = read_state();
 	st.services ??= {};
 	st.services[name] = { addon: slug, config };
@@ -323,4 +336,44 @@ export function service_delete(name) {
 	let st = read_state();
 	if (st.services) delete st.services[name];
 	write_state(st);
+};
+
+// discovery: stored so HA can list them at start-up and fetch one after a push
+export function discovery_list() {
+	let out = [];
+	for (let u, d in read_state().discovery ?? {})
+		push(out, d);
+	return out;
+};
+
+export function discovery_get(uuid) { return read_state().discovery?.[uuid]; };
+
+export function discovery_add(slug, service, config) {
+	let st = read_state();
+	st.discovery ??= {};
+	let uuid;
+	for (let u, d in st.discovery)       // same add-on+service updates the existing entry
+		if (d.addon == slug && d.service == service)
+			uuid = u;
+	uuid ??= rand_hex(16);
+	if (!uuid) return null;
+	st.discovery[uuid] = { addon: slug, service, uuid, config: fix_host(slug, config) };
+	write_state(st);
+	return uuid;
+};
+
+export function discovery_delete(uuid) {
+	let st = read_state();
+	if (!st.discovery?.[uuid]) return false;
+	delete st.discovery[uuid];
+	write_state(st);
+	return true;
+};
+
+// Tell HA there is something new; HA then fetches GET /discovery/<uuid> from us.
+export function discovery_push(uuid) {
+	let cfg = load();
+	let r = http.request(`http://localhost/api/hassio_push/discovery/${uuid}`,
+		{ method: 'POST', unix: cfg.core_socket, timeout: 60 });
+	return http.ok(r);
 };

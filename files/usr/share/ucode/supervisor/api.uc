@@ -184,7 +184,6 @@ const STATIC = {
 	'/available_updates': { available_updates: [] },
 	'/backups': { backups: [] },
 	'/backups/info': { backups: [], days_until_stale: 30 },
-	'/discovery': { discovery: [], services: {} },
 	'/ingress/panels': { panels: {} }
 };
 
@@ -229,12 +228,14 @@ export function handle(method, path, body, headers, principal) {
 		let tag = body?.version;
 		if (tag != null && !match(tag, /^[A-Za-z0-9._-]+$/))
 			return err(400, 'invalid version');
-		return ok({ job_id: jobs.spawn('update', tag ?? '') });
+		// HA's "backup before update" checkbox sends backup=true; absent/false means no backup
+		let flag = body?.backup ? '--backup' : '--no-backup';
+		return ok({ job_id: jobs.spawn('update', `${tag ?? ''} ${flag}`) });
 	}
 	case 'POST /core/start':   return core.start() ? ok() : err(500, 'start failed');
 	case 'POST /core/stop':    return core.stop() ? ok() : err(500, 'stop failed');
 	case 'POST /core/restart': return core.restart() ? ok() : err(500, 'restart failed');
-	case 'POST /core/rebuild': return ok({ job_id: jobs.spawn('update', core.info(cfg).version ?? '') });
+	case 'POST /core/rebuild': return ok({ job_id: jobs.spawn('update', `${core.info(cfg).version ?? ''} --no-backup`) });
 	case 'GET /core/logs':     return { code: 200, text: core.logs(200) };
 	case 'POST /refresh_updates':
 		core.info(cfg, true);
@@ -339,8 +340,24 @@ export function handle(method, path, body, headers, principal) {
 			return ok(d);
 		}
 	}
-	if (method == 'POST' && path == '/discovery' && type(body) == 'object')
-		return ok({ uuid: sprintf('%08x%08x', time(), rand()) });
+	if (path == '/discovery' && method == 'GET')
+		return ok({ discovery: addons.discovery_list() });
+	if (path == '/discovery' && method == 'POST') {
+		if (principal == 'supervisor' || type(body?.config) != 'object' || type(body?.service) != 'string')
+			return err(400, 'service and config required, from an add-on');
+		let uuid = addons.discovery_add(principal, body.service, body.config);
+		if (!uuid) return err(500, 'cannot store discovery');
+		// push to HA in the background (retries while HA is starting)
+		system(`/usr/sbin/owrt-supervisor discovery-push ${uuid} >/dev/null 2>&1 &`);
+		return ok({ uuid });
+	}
+	let dm = match(path, /^\/discovery\/([a-f0-9]{32})$/);
+	if (dm && method == 'GET') {
+		let d = addons.discovery_get(dm[1]);
+		return d ? ok(d) : err(404, 'unknown discovery');
+	}
+	if (dm && method == 'DELETE')
+		return addons.discovery_delete(dm[1]) ? ok() : err(404, 'unknown discovery');
 	if (method == 'POST' && path == '/auth')
 		return err(401, 'Unauthorized');
 
