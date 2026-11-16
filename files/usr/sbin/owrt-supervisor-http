@@ -1,0 +1,65 @@
+#!/usr/bin/ucode -S
+'use strict';
+// Per-connection HTTP/1.0 handler, run by socat (stdin/stdout = the socket).
+import { stdin, stdout } from 'fs';
+import * as fsm from 'fs';
+import * as api from 'supervisor.api';
+import * as cfgm from 'supervisor.config';
+
+function reply(code, ctype, text) {
+	stdout.write(`HTTP/1.0 ${code} X\r\nContent-Type: ${ctype}\r\nContent-Length: ${length(text)}\r\nConnection: close\r\n\r\n${text}`);
+	stdout.flush();
+};
+
+let line = stdin.read('line');
+let m = match(line ?? '', /^([A-Z]+) (\S+)/);
+if (!m)
+	exit(0);
+let method = m[1], path = split(m[2], '?')[0];
+
+let headers = {};
+while ((line = stdin.read('line')) != null) {
+	line = trim(line);
+	if (line == '')
+		break;
+	let i = index(line, ':');
+	if (i > 0)
+		headers[lc(substr(line, 0, i))] = trim(substr(line, i + 1));
+}
+
+let cfg = cfgm.load();
+if (!cfg.token || headers.authorization != `Bearer ${cfg.token}`) {
+	reply(401, 'application/json', '{"result":"error","message":"unauthorized"}');
+	exit(0);
+}
+
+let body, raw = '';
+let n = +(headers['content-length'] ?? 0);
+if (lc(headers['transfer-encoding'] ?? '') == 'chunked') {
+	while ((line = stdin.read('line')) != null) {
+		let sz = hex(trim(split(line, ';')[0])) ?? 0;
+		if (!sz || length(raw) + sz > 65536)
+			break;
+		raw += stdin.read(sz);
+		stdin.read('line');   // trailing CRLF of the chunk
+	}
+} else if (n > 0 && n < 65536) {
+	raw = stdin.read(n);
+}
+if (length(raw)) {
+	try { body = json(raw); } catch (e) { body = null; }
+}
+
+let r = api.handle(method, path, body);
+// tiny access log in tmpfs; truncated when it grows past ~64 KiB
+let lf = fsm.open('/var/run/owrt-supervisor/access.log', 'a');
+if (lf) {
+	lf.write(`${time()} ${method} ${path} ${r.code}\n`);
+	lf.close();
+	if (fsm.stat('/var/run/owrt-supervisor/access.log')?.size > 65536)
+		fsm.unlink('/var/run/owrt-supervisor/access.log');
+}
+if (r.text != null)
+	reply(r.code, 'text/plain', r.text);
+else
+	reply(r.code, 'application/json', sprintf('%J', r.body));

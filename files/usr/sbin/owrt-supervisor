@@ -1,0 +1,51 @@
+#!/usr/bin/ucode -S
+'use strict';
+import * as core from 'supervisor.core';
+import * as jobs from 'supervisor.jobs';
+import * as cfgm from 'supervisor.config';
+import * as registry from 'supervisor.registry';
+
+let args = [...ARGV];
+let job;
+let ji = index(args, '--job');
+if (ji >= 0) {
+	job = args[ji + 1];
+	splice(args, ji, 2);
+}
+let cmd = shift(args);
+
+function out(v) { print(type(v) == 'string' ? v + '\n' : sprintf('%.2J\n', v)); }
+
+switch (cmd) {
+case 'status':
+	out(core.info(null, false));
+	break;
+case 'check':
+	out(core.info(null, true));
+	break;
+case 'update': {
+	let r = core.update(args[0], job);
+	out(r);
+	exit(r.ok ? 0 : 1);
+}
+case 'ensure':
+	out(core.ensure());
+	break;
+case 'start':   out({ ok: core.start() }); break;
+case 'stop':    out({ ok: core.stop() }); break;
+case 'restart': out({ ok: core.restart() }); break;
+case 'logs':    print(core.logs(+(args[0] ?? 200))); break;
+case 'tags': {
+	let c = registry.check(cfgm.load(), true);
+	out(c ?? 'registry unreachable');
+	break;
+}
+case 'set-source':
+	// owrt-supervisor set-source ghcr.io/adyoull/ha-armv7
+	cfgm.set('image', args[0]);
+	out({ image: args[0] });
+	break;
+default:
+	warn('usage: owrt-supervisor status|check|update [tag]|ensure|start|stop|restart|logs [n]|tags|set-source <image>\n');
+	exit(2);
+}
