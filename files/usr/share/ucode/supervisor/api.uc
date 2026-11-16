@@ -38,6 +38,24 @@ function disk(path) {
 	return length(f) >= 4 ? [gb(f[1]), gb(f[2]), gb(f[3])] : [0, 0, 0];
 };
 
+// Supervisor DiskUsage tree (storage page). Depth is fixed at one level.
+function sh_kb(cmd) {
+	let p = popen(cmd, 'r');
+	let out = p ? p.read('all') : '';
+	if (p) p.close();
+	return +split(trim(out), /\s+/)[0] || 0;
+};
+
+function disk_usage(cfg) {
+	let d = split(trim((() => { let p = popen('df -k / 2>/dev/null | tail -n 1', 'r'); let o = p ? p.read('all') : ''; if (p) p.close(); return o; })()), /\s+/);
+	let total = (+d[1] || 0) * 1024, used = (+d[2] || 0) * 1024;
+	let ha = sh_kb(`du -sk '${cfg.config_dir}' 2>/dev/null`) * 1024;
+	return { id: 'root', label: 'Total', used_bytes: used, total_bytes: total, children: [
+		{ id: 'homeassistant', label: 'Home Assistant', used_bytes: ha },
+		{ id: 'system', label: 'System', used_bytes: used > ha ? used - ha : 0 }
+	] };
+};
+
 function channel(cfg) { return 'stable'; };
 
 function root_info(cfg) {
@@ -187,6 +205,7 @@ export function handle(method, path, body, headers) {
 	case 'GET /host/info':          return ok(host_info(cfg));
 	case 'GET /os/info':            return ok(os_info());
 	case 'GET /hardware/info':      return ok(hardware_info());
+	case 'GET /host/disks/default/usage': return ok(disk_usage(cfg));
 	case 'POST /core/update': {
 		let tag = body?.version;
 		if (tag != null && !match(tag, /^[A-Za-z0-9._-]+$/))
