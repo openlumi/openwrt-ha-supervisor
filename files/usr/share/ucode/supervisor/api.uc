@@ -56,6 +56,13 @@ function disk_usage(cfg) {
 	] };
 };
 
+// Add-on catalog: a pre-rendered StoreInfo. Browse only; add-ons cannot be installed here.
+function catalog(cfg) {
+	let c;
+	try { c = json(readfile(cfg.catalog) ?? ''); } catch (e) { c = null; }
+	return { addons: c?.addons ?? [], repositories: c?.repositories ?? [] };
+};
+
 function channel(cfg) { return 'stable'; };
 
 function root_info(cfg) {
@@ -171,7 +178,6 @@ function host_logs(headers) {
 };
 
 const STATIC = {
-	'/store': { addons: [], repositories: [] },
 	'/addons': { addons: [] },
 	'/network/info': { interfaces: [],
 	                   docker: { interface: 'docker0', address: '172.17.0.0/16', gateway: '172.17.0.1', dns: '172.17.0.1' },
@@ -204,6 +210,9 @@ export function handle(method, path, body, headers) {
 	case 'GET /core/stats':         return ok(stats(core.stats()));
 	case 'GET /host/info':          return ok(host_info(cfg));
 	case 'GET /os/info':            return ok(os_info());
+	case 'GET /store':              return ok(catalog(cfg));
+	case 'GET /store/addons':       return ok({ addons: catalog(cfg).addons });
+	case 'GET /store/repositories': return ok(catalog(cfg).repositories);
 	case 'GET /hardware/info':      return ok(hardware_info());
 	case 'GET /host/disks/default/usage': return ok(disk_usage(cfg));
 	case 'POST /core/update': {
@@ -248,6 +257,10 @@ export function handle(method, path, body, headers) {
 		return ok(STATIC[path]);
 	if (method == 'POST' && (path in NOOP_POST))
 		return ok();
+
+	// Add-ons are catalog-only: say so explicitly instead of a generic 404.
+	if (match(path, /^\/store\/addons\/[^\/]+(\/(install|update|availability))?$/))
+		return err(400, 'Add-ons can only be browsed here: installing them is not supported by owrt-supervisor');
 
 	let m = match(path, /^\/jobs\/([a-z0-9-]+)$/);
 	if (method == 'GET' && m) {

@@ -16,6 +16,7 @@ const DEFAULTS = {
 	registry_user: '',
 	registry_pass: '',
 	cache_ttl: '3600',
+	catalog: '/usr/share/owrt-supervisor/catalog.json',   // add-on catalog (StoreInfo JSON)
 	devices: [],                          // list of /dev/... passthrough
 	backup_before_update: '1'
 };
