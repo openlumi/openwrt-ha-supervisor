@@ -76,7 +76,10 @@ export function update(tag, job) {
 		if (!chk?.latest) return fail('cannot determine latest version');
 		tag = chk.latest;
 	}
-	let old_tag = running_tag(cfg);
+	// Never guess: if docker cannot tell us whether the container exists, stop here.
+	let existing = docker.exists(cfg.container);
+	if (existing == null) return fail('cannot query docker for the existing container');
+	let old_tag = existing ? running_tag(cfg) : null;
 
 	step('pulling', 10);
 	let p = docker.pull(cfg.image, tag);
@@ -87,13 +90,18 @@ export function update(tag, job) {
 
 	step('switching', 60);
 	let old = cfg.container + '_old';
-	let had_old = !!old_tag;
+	let had_old = existing;
 	if (had_old) {
 		docker.remove(old);
 		docker.stop(cfg.container);
 		docker.rename(cfg.container, old);
 	}
-	let r = run_tag(cfg, tag, token);
+	let created = false;
+	let r = docker.create(cfg.container, docker.core_spec(cfg, image_ref(cfg, tag), token));
+	if (r.ok) {
+		created = true;
+		r = docker.start(cfg.container) ? { ok: true } : { ok: false, error: 'start failed' };
+	}
 	if (r.ok) {
 		step('health', 80);
 		if (wait_healthy(cfg)) {
@@ -105,7 +113,8 @@ export function update(tag, job) {
 	}
 	// rollback
 	step('rollback', 90);
-	docker.remove(cfg.container);
+	if (created)                      // only remove what this run created
+		docker.remove(cfg.container);
 	if (had_old) {
 		docker.rename(old, cfg.container);
 		docker.start(cfg.container);
@@ -116,9 +125,11 @@ export function update(tag, job) {
 // Make sure a container exists and runs (used at boot / first install).
 export function ensure() {
 	let cfg = load();
+	let ex = docker.exists(cfg.container);
+	if (ex == null) return { ok: false, error: 'docker not ready' };
+	if (!ex) return update(null, null);
 	let i = docker.inspect(cfg.container);
-	if (!i) return update(null, null);
-	if (!i.State?.Running) docker.start(cfg.container);
+	if (i && !i.State?.Running) docker.start(cfg.container);
 	return { ok: true };
 };
 

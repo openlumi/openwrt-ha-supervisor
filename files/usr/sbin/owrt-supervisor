@@ -28,9 +28,15 @@ case 'update': {
 	out(r);
 	exit(r.ok ? 0 : 1);
 }
-case 'ensure':
-	out(core.ensure());
+case 'ensure': {
+	// boot-time helper: silent on success, error only on stderr (goes to syslog via procd)
+	let r = core.ensure();
+	if (!r.ok) {
+		warn(sprintf('ensure failed: %s\n', r.error ?? 'unknown'));
+		exit(1);
+	}
 	break;
+}
 case 'start':   out({ ok: core.start() }); break;
 case 'stop':    out({ ok: core.stop() }); break;
 case 'restart': out({ ok: core.restart() }); break;

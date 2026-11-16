@@ -18,6 +18,13 @@ export function inspect(name) {
 	return http.ok(r) ? r.json : null;
 };
 
+// true / false, or null when docker could not answer (do NOT treat null as "missing").
+export function exists(name) {
+	let r = call('GET', `/containers/${name}/json`);
+	if (http.ok(r)) return true;
+	return r.status == 404 ? false : null;
+};
+
 export function image_exists(ref) {
 	return http.ok(call('GET', `/images/${ref}/json`));
 };
