@@ -1,0 +1,122 @@
+name: Build packages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Build .apk and .ipk
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Work out the release tag (<version>-<UTC date>)
+        id: meta
+        run: |
+          version="$(sed -n 's/^PKG_VERSION:=//p' package/ha-supervisor/Makefile)"
+          echo "tag=${version}-$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
+      # both scripts run tools/check.sh first: a file that does not compile is never packaged
+      - name: Build .apk (OpenWrt 25.12 and newer, apk-tools v3)
+        run: tools/build-apk.sh
+
+      - name: Build .ipk (OpenWrt 24.10 and older, opkg)
+        run: tools/build-ipk.sh
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum ha-supervisor* | tee SHA256SUMS
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: packages
+          path: dist/
+          if-no-files-found: error
+
+  smoke-test:
+    name: Install on OpenWrt ${{ matrix.openwrt }} (${{ matrix.kind }})
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { kind: apk, openwrt: "25.12.6", image: "openwrt/rootfs:x86-64-25.12.6" }
+          - { kind: ipk, openwrt: "24.10.2", image: "openwrt/rootfs:x86-64-24.10.2" }
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: packages
+          path: dist/
+
+      # installs into a stock OpenWrt rootfs container and checks what the install hook did
+      - name: Install and check
+        run: tools/smoke-test.sh "${{ matrix.kind }}" "${{ matrix.image }}" amd64
+
+  release:
+    name: Pre-release
+    # not for pull requests: they only build and test
+    if: github.event_name != 'pull_request'
+    needs: [build, smoke-test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: release
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: packages
+          path: dist/
+
+      - name: Create the pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          cat > notes.md <<NOTES
+          Automated build of \`${GITHUB_SHA}\`.
+
+          **OpenWrt 25.12 and newer** (apk):
+          \`\`\`sh
+          apk add --allow-untrusted ./ha-supervisor-*.apk
+          \`\`\`
+
+          **OpenWrt 24.10 and older** (opkg):
+          \`\`\`sh
+          opkg install ./ha-supervisor_*_all.ipk
+          \`\`\`
+
+          The packages are not signed, hence \`--allow-untrusted\` for apk.
+
+          SHA-256:
+          \`\`\`
+          $(cat dist/SHA256SUMS)
+          \`\`\`
+          NOTES
+
+          # One snapshot per day: a second build on the same day replaces the first
+          # (a release tag would otherwise keep pointing at the older commit).
+          gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes 2>/dev/null || true
+
+          gh release create "$TAG" dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --title "ha-supervisor $TAG" \
+            --notes-file notes.md
