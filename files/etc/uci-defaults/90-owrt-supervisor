@@ -1,8 +1,7 @@
 #!/bin/sh
-# Generate the API token once.
+# Generate the API token once. (Enabling/starting the service is done by the package hook.)
 [ -n "$(uci -q get owrt-supervisor.main.token)" ] || {
 	uci set owrt-supervisor.main.token="$(head -c 24 /dev/urandom | hexdump -v -e '/1 "%02x"')"
 	uci commit owrt-supervisor
 }
-/etc/init.d/owrt-supervisor enable
 exit 0

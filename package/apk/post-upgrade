@@ -1,0 +1,14 @@
+#!/bin/sh
+# apk runs this (not post-install) when installing over an older version. A service that was
+# never enabled (e.g. a broken first install) is treated like a fresh install.
+[ "${IPKG_NO_SCRIPT}" = "1" ] && exit 0
+[ -s ${IPKG_INSTROOT}/lib/functions.sh ] || exit 0
+. ${IPKG_INSTROOT}/lib/functions.sh
+export root="${IPKG_INSTROOT}"
+export pkgname="owrt-supervisor"
+if [ -z "${IPKG_INSTROOT}" ] && ! /etc/init.d/owrt-supervisor enabled 2>/dev/null; then
+	unset PKG_UPGRADE
+else
+	export PKG_UPGRADE=1
+fi
+default_postinst
