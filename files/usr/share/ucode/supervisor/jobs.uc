@@ -28,10 +28,10 @@ export function update(id, patch) {
 	write(id, j);
 };
 
-// Start `owrt-supervisor <cmd> <args> --job <id>` detached.
+// Start `ha-supervisor <cmd> <args> --job <id>` detached.
 export function spawn(cmd, args) {
 	let id = sprintf('%d-%d', time(), rand() % 10000);
 	write(id, { uuid: id, name: cmd, done: false, progress: 0, stage: 'queued', errors: [] });
-	system(`/usr/sbin/owrt-supervisor ${cmd} ${args ?? ''} --job ${id} >/dev/null 2>&1 &`);
+	system(`/usr/sbin/ha-supervisor ${cmd} ${args ?? ''} --job ${id} >/dev/null 2>&1 &`);
 	return id;
 };

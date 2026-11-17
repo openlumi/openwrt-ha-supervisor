@@ -4,12 +4,12 @@ START=99
 USE_PROCD=1
 
 start_service() {
-	mkdir -p /var/run/owrt-supervisor
+	mkdir -p /var/run/ha-supervisor
 	local port
-	port="$(uci -q get owrt-supervisor.main.port)"; port="${port:-8124}"
+	port="$(uci -q get ha-supervisor.main.port)"; port="${port:-8124}"
 
 	procd_open_instance ensure
-	procd_set_param command /usr/sbin/owrt-supervisor ensure
+	procd_set_param command /usr/sbin/ha-supervisor ensure
 	procd_set_param stderr 1   # failures only; success prints nothing
 	# one-shot: NO respawn (a respawning ensure re-ran every few seconds and hammered docker)
 	procd_close_instance
@@ -17,17 +17,17 @@ start_service() {
 	procd_open_instance api
 	procd_set_param command /usr/bin/socat -t0.1 \
 		"TCP-LISTEN:$port,bind=127.0.0.1,reuseaddr,fork" \
-		"EXEC:/usr/sbin/owrt-supervisor-http"
+		"EXEC:/usr/sbin/ha-supervisor-http"
 	procd_set_param respawn
 	procd_close_instance
 
 	# same API on the docker bridge gateway, for add-on containers (token-restricted)
 	local bridge
-	bridge="$(uci -q get owrt-supervisor.main.bridge_ip)"; bridge="${bridge:-172.17.0.1}"
+	bridge="$(uci -q get ha-supervisor.main.bridge_ip)"; bridge="${bridge:-172.17.0.1}"
 	procd_open_instance api_bridge
 	procd_set_param command /usr/bin/socat -t0.1 \
 		"TCP-LISTEN:$port,bind=$bridge,reuseaddr,fork" \
-		"EXEC:/usr/sbin/owrt-supervisor-http"
+		"EXEC:/usr/sbin/ha-supervisor-http"
 	procd_set_param respawn
 	procd_close_instance
 }

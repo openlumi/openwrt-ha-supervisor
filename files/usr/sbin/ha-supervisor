@@ -25,7 +25,7 @@ case 'check':
 	out(core.info(null, true));
 	break;
 case 'update': {
-	// owrt-supervisor update [tag] [--backup|--no-backup]
+	// ha-supervisor update [tag] [--backup|--no-backup]
 	let backup = null;
 	let bi = index(args, '--backup');
 	if (bi >= 0) { backup = true; splice(args, bi, 1); }
@@ -73,7 +73,7 @@ case 'addon-stop':    out({ ok: addons.stop(args[0]) }); break;
 case 'addon-restart': out({ ok: addons.restart(args[0]) }); break;
 case 'addon-logs':    print(addons.logs(args[0], +(args[1] ?? 200))); break;
 case 'addon-options':
-	// owrt-supervisor addon-options <slug> '<json>'   (omit json to print current options)
+	// ha-supervisor addon-options <slug> '<json>'   (omit json to print current options)
 	if (args[1] == null) {
 		out(addons.options(args[0]) ?? 'not installed');
 	} else {
@@ -86,9 +86,9 @@ case 'addon-options':
 case 'init-config': {
 	// run by uci-defaults on install/upgrade: make arch, image and catalog explicit in UCI
 	for (let w in cfgm.init_defaults())
-		print(`owrt-supervisor: set ${w}\n`);
+		print(`ha-supervisor: set ${w}\n`);
 	if (!cfgm.load().image)
-		warn(`owrt-supervisor: no Home Assistant image for architecture "${cfgm.load().arch}"; set 'option image' in /etc/config/owrt-supervisor\n`);
+		warn(`ha-supervisor: no Home Assistant image for architecture "${cfgm.load().arch}"; set 'option image' in /etc/config/ha-supervisor\n`);
 	break;
 }
 case 'tags': {
@@ -97,11 +97,11 @@ case 'tags': {
 	break;
 }
 case 'set-source':
-	// owrt-supervisor set-source ghcr.io/adyoull/ha-armv7
+	// ha-supervisor set-source ghcr.io/adyoull/ha-armv7
 	cfgm.set('image', args[0]);
 	out({ image: args[0] });
 	break;
 default:
-	warn('usage: owrt-supervisor status|check|update [tag]|ensure|start|stop|restart|logs [n]|tags|set-source <image>|init-config\n       owrt-supervisor addons|addon-install|addon-uninstall|addon-start|addon-stop|addon-restart|addon-logs|addon-options <slug> [json]\n');
+	warn('usage: ha-supervisor status|check|update [tag]|ensure|start|stop|restart|logs [n]|tags|set-source <image>|init-config\n       ha-supervisor addons|addon-install|addon-uninstall|addon-start|addon-stop|addon-restart|addon-logs|addon-options <slug> [json]\n');
 	exit(2);
 }

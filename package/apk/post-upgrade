@@ -5,8 +5,8 @@
 [ -s ${IPKG_INSTROOT}/lib/functions.sh ] || exit 0
 . ${IPKG_INSTROOT}/lib/functions.sh
 export root="${IPKG_INSTROOT}"
-export pkgname="owrt-supervisor"
-if [ -z "${IPKG_INSTROOT}" ] && ! /etc/init.d/owrt-supervisor enabled 2>/dev/null; then
+export pkgname="ha-supervisor"
+if [ -z "${IPKG_INSTROOT}" ] && ! /etc/init.d/ha-supervisor enabled 2>/dev/null; then
 	unset PKG_UPGRADE
 else
 	export PKG_UPGRADE=1

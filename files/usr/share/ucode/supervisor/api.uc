@@ -349,7 +349,7 @@ export function handle(method, path, body, headers, principal) {
 		let uuid = addons.discovery_add(principal, body.service, body.config);
 		if (!uuid) return err(500, 'cannot store discovery');
 		// push to HA in the background (retries while HA is starting)
-		system(`/usr/sbin/owrt-supervisor discovery-push ${uuid} >/dev/null 2>&1 &`);
+		system(`/usr/sbin/ha-supervisor discovery-push ${uuid} >/dev/null 2>&1 &`);
 		return ok({ uuid });
 	}
 	let dm = match(path, /^\/discovery\/([a-f0-9]{32})$/);

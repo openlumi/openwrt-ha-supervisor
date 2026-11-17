@@ -3,7 +3,7 @@
 import { cursor } from 'uci';
 import { popen, stat } from 'fs';
 
-const CATALOG_DIR = '/usr/share/owrt-supervisor';
+const CATALOG_DIR = '/usr/share/ha-supervisor';
 
 const DEFAULTS = {
 	image: '',                            // '' = official image, or the armv7 community build (see CORE_IMAGES)
@@ -20,12 +20,12 @@ const DEFAULTS = {
 	registry_user: '',
 	registry_pass: '',
 	cache_ttl: '3600',
-	core_socket: '/var/run/owrt-supervisor/core/core.sock',   // HA's Supervisor-only unix socket (host side)
+	core_socket: '/var/run/ha-supervisor/core/core.sock',   // HA's Supervisor-only unix socket (host side)
 	bridge_ip: '172.17.0.1',               // docker bridge gateway: add-ons reach the API here
-	catalog: '',                          // '' = /usr/share/owrt-supervisor/catalog-<arch>.json (StoreInfo JSON)
+	catalog: '',                          // '' = /usr/share/ha-supervisor/catalog-<arch>.json (StoreInfo JSON)
 	devices: [],                          // list of /dev/... passthrough
 	backup_before_update: '0',            // policy when the caller does not say; request flag wins
-	backup_dir: '/mnt/docker/owrt-backups',
+	backup_dir: '/mnt/docker/ha-supervisor-backups',
 };
 
 // uname -m -> Supervisor architecture names
@@ -43,7 +43,7 @@ const CORE_IMAGES = {
 };
 
 export function detect_arch() {
-	let m = getenv('OWRT_SUPERVISOR_ARCH');   // test override
+	let m = getenv('HA_SUPERVISOR_ARCH');   // test override
 	if (!m) {
 		let p = popen('uname -m', 'r');
 		m = p ? trim(p.read('all')) : '';
@@ -54,7 +54,7 @@ export function detect_arch() {
 
 export function load() {
 	let c = cursor();
-	let s = c.get_all('owrt-supervisor', 'main') ?? {};
+	let s = c.get_all('ha-supervisor', 'main') ?? {};
 	let cfg = {};
 	for (let k, v in DEFAULTS)
 		cfg[k] = s[k] ?? v;
@@ -68,19 +68,19 @@ export function load() {
 
 export function set(key, value) {
 	let c = cursor();
-	if (!c.get('owrt-supervisor', 'main'))
-		c.set('owrt-supervisor', 'main', 'supervisor');
-	c.set('owrt-supervisor', 'main', key, value);
-	c.save('owrt-supervisor');
-	c.commit('owrt-supervisor');
+	if (!c.get('ha-supervisor', 'main'))
+		c.set('ha-supervisor', 'main', 'supervisor');
+	c.set('ha-supervisor', 'main', key, value);
+	c.save('ha-supervisor');
+	c.commit('ha-supervisor');
 };
 
 // Called at install/upgrade: write the detected architecture, the image and the catalog into
-// /etc/config/owrt-supervisor so they are explicit and editable. Only options that are not set
+// /etc/config/ha-supervisor so they are explicit and editable. Only options that are not set
 // yet are written; whatever the user chose stays. Returns a list of what was written.
 export function init_defaults() {
 	let c = cursor();
-	let s = c.get_all('owrt-supervisor', 'main') ?? {};
+	let s = c.get_all('ha-supervisor', 'main') ?? {};
 	let arch = s.arch || detect_arch();
 	let want = {
 		arch,
@@ -100,5 +100,5 @@ export function init_defaults() {
 };
 
 
-export const STATE_DIR = '/var/run/owrt-supervisor';
+export const STATE_DIR = '/var/run/ha-supervisor';
 export const VERSION = '0.1.0';

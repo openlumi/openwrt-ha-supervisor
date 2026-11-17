@@ -2,11 +2,11 @@
 # Build an installable apk (apk-tools v3) from files/ using a throw-away Alpine container,
 # because OpenWrt's on-device apk has no `mkpkg`.
 #
-#   tools/build-apk.sh            -> dist/owrt-supervisor-<ver>.apk   (unsigned, arch: noarch)
-#   install on the router:  apk add --allow-untrusted ./owrt-supervisor-<ver>.apk
+#   tools/build-apk.sh            -> dist/ha-supervisor-<ver>.apk   (unsigned, arch: noarch)
+#   install on the router:  apk add --allow-untrusted ./ha-supervisor-<ver>.apk
 set -eu
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-MK="$ROOT/package/owrt-supervisor/Makefile"
+MK="$ROOT/package/ha-supervisor/Makefile"
 VER="$(sed -n 's/^PKG_VERSION:=//p' "$MK")"
 REL="$(sed -n 's/^PKG_RELEASE:=//p' "$MK")"
 FULL="$VER-r$REL"
@@ -25,10 +25,10 @@ docker run --rm \
     rm -rf /stage && mkdir /stage && cp -R /src/files/. /stage/
     # OpenWrt convention: the package ships its own file list (default_postinst reads it)
     mkdir -p /stage/lib/apk/packages
-    (cd /stage && find . -type f ! -path "./lib/apk/packages/*" | sed "s|^\.||" | sort) > /stage/lib/apk/packages/owrt-supervisor.list
-    echo /etc/config/owrt-supervisor > /stage/lib/apk/packages/owrt-supervisor.conffiles
-    echo "/etc/config/owrt-supervisor $(sha256sum /stage/etc/config/owrt-supervisor | cut -d" " -f1)" \
-      > /stage/lib/apk/packages/owrt-supervisor.conffiles_static
+    (cd /stage && find . -type f ! -path "./lib/apk/packages/*" | sed "s|^\.||" | sort) > /stage/lib/apk/packages/ha-supervisor.list
+    echo /etc/config/ha-supervisor > /stage/lib/apk/packages/ha-supervisor.conffiles
+    echo "/etc/config/ha-supervisor $(sha256sum /stage/etc/config/ha-supervisor | cut -d" " -f1)" \
+      > /stage/lib/apk/packages/ha-supervisor.conffiles_static
     chown -R 0:0 /stage
     find /stage -type d -exec chmod 755 {} +
     find /stage -type f -exec chmod 644 {} +
@@ -36,7 +36,7 @@ docker run --rm \
     cp /src/package/apk/post-install /src/package/apk/post-upgrade /src/package/apk/pre-deinstall /tmp/
     chmod 755 /tmp/post-install /tmp/post-upgrade /tmp/pre-deinstall
     apk mkpkg \
-      --info "name:owrt-supervisor" \
+      --info "name:ha-supervisor" \
       --info "version:$FULL" \
       --info "description:Minimal Home Assistant supervisor for OpenWrt (Docker, ucode)" \
       --info "arch:noarch" \
@@ -45,7 +45,7 @@ docker run --rm \
       --script post-upgrade:/tmp/post-upgrade \
       --script pre-deinstall:/tmp/pre-deinstall \
       --files /stage \
-      --output "/out/owrt-supervisor-$FULL.apk"
-    ls -l "/out/owrt-supervisor-$FULL.apk"
+      --output "/out/ha-supervisor-$FULL.apk"
+    ls -l "/out/ha-supervisor-$FULL.apk"
   '
-echo "built: $OUT/owrt-supervisor-$FULL.apk"
+echo "built: $OUT/ha-supervisor-$FULL.apk"

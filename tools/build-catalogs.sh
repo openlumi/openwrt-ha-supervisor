@@ -1,5 +1,5 @@
 #!/bin/sh
-# Regenerate files/usr/share/owrt-supervisor/catalog-<arch>.json from the upstream add-on repo.
+# Regenerate files/usr/share/ha-supervisor/catalog-<arch>.json from the upstream add-on repo.
 #
 #   armv7          frozen snapshot: upstream dropped armv7 in 2026, the add-ons and their
 #                  homeassistant/armv7-addon-* images still exist at this commit
@@ -10,7 +10,7 @@ set -eu
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SNAPSHOT_ARMV7=b9b856c91568bd5ae97f22e6f25326a57c08470c   # 2025-11-24, last with armv7
 UPSTREAM=f46a10207c7606bc3785d028f63fbf8ac3e973bf   # 2026-11-15
-OUT="$ROOT/files/usr/share/owrt-supervisor"
+OUT="$ROOT/files/usr/share/ha-supervisor"
 WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"' EXIT
 
 REPO="${ADDONS_REPO:-$WORK/addons.git}"

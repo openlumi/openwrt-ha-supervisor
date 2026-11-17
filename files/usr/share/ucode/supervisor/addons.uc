@@ -9,7 +9,7 @@ import * as http from 'supervisor.http';
 import { load } from 'supervisor.config';
 import { readfile, writefile, mkdir, popen } from 'fs';
 
-const BASE = '/etc/owrt-supervisor';
+const BASE = '/etc/ha-supervisor';
 const STATE = BASE + '/addons.json';
 
 export function catalog(cfg) {
@@ -27,7 +27,7 @@ export function find(cfg, slug) {
 
 // Why an add-on cannot run here (the catalog lists runtime features this supervisor lacks).
 export function unavailable_reason(a) {
-	return 'This add-on needs features that owrt-supervisor does not support: ' +
+	return 'This add-on needs features that ha-supervisor does not support: ' +
 	       join(', ', a.unsupported ?? ['unknown']);
 };
 
@@ -71,7 +71,7 @@ function copy(v) { return json(sprintf('%J', v)); };
 // Names follow the Supervisor: config/homeassistant_config = the Home Assistant config dir,
 // app_config/addon_config = the add-on's private config, all_app_configs = every add-on's
 // config, local_apps/addons = local add-ons; the rest (ssl, share, media, backup, ...) are
-// plain directories under /etc/owrt-supervisor.
+// plain directories under /etc/ha-supervisor.
 function map_bind(cfg, slug, m) {
 	let name, mode = 'ro';
 	if (type(m) == 'object') {
@@ -120,7 +120,7 @@ function container_spec(cfg, slug, entry, spec) {
 		Image: `${entry.image}:${entry.version}`,
 		Hostname: replace(slug, '_', '-'),
 		Env: [`TZ=${cfg.timezone}`, `SUPERVISOR_TOKEN=${entry.token}`, `SUPERVISOR_API=${api}`],
-		Labels: { 'owrt.supervisor': 'addon', 'owrt.addon': slug },
+		Labels: { 'ha.supervisor': 'addon', 'ha.addon': slug },
 		ExposedPorts: exposed,
 		HostConfig: {
 			NetworkMode: 'bridge',
@@ -200,7 +200,7 @@ export function uninstall(slug) {
 	docker.stop(cname(slug));
 	docker.remove(cname(slug));
 	delete st.addons[slug];
-	write_state(st);          // add-on data is kept in /etc/owrt-supervisor/addons/<slug>/data
+	write_state(st);          // add-on data is kept in /etc/ha-supervisor/addons/<slug>/data
 	return { ok: true };
 };
 

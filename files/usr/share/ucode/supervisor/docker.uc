@@ -94,7 +94,7 @@ export function core_spec(cfg, image_ref, sup_token) {
 			// HA opens this unix socket and trusts it as the Supervisor user (discovery push)
 			'SUPERVISOR_CORE_API_SOCKET=/run/supervisor-core/core.sock'
 		],
-		Labels: { 'owrt.supervisor': 'core' },
+		Labels: { 'ha.supervisor': 'core' },
 		HostConfig: {
 			NetworkMode: 'host',
 			Privileged: true,

@@ -61,12 +61,12 @@ if (length(raw)) {
 
 let r = api.handle(method, path, body, headers, principal);
 // tiny access log in tmpfs; truncated when it grows past ~64 KiB
-let lf = fsm.open('/var/run/owrt-supervisor/access.log', 'a');
+let lf = fsm.open('/var/run/ha-supervisor/access.log', 'a');
 if (lf) {
 	lf.write(`${time()} ${method} ${path} ${r.code}\n`);
 	lf.close();
-	if (fsm.stat('/var/run/owrt-supervisor/access.log')?.size > 65536)
-		fsm.unlink('/var/run/owrt-supervisor/access.log');
+	if (fsm.stat('/var/run/ha-supervisor/access.log')?.size > 65536)
+		fsm.unlink('/var/run/ha-supervisor/access.log');
 }
 if (r.text != null)
 	reply(r.code, 'text/plain', r.text);

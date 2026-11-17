@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Render a Supervisor `StoreInfo` catalog for one architecture from a checkout of an add-on repository.
 
-    python3 tools/build_catalog.py <checkout> <arch>  > files/usr/share/owrt-supervisor/catalog-<arch>.json
+    python3 tools/build_catalog.py <checkout> <arch>  > files/usr/share/ha-supervisor/catalog-<arch>.json
 
 (`tools/build-catalogs.sh` produces all of them from pinned commits.)
 

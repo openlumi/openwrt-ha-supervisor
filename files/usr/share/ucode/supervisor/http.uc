@@ -10,8 +10,8 @@ function shq(s) {
 };
 
 function tmpname() {
-	mkdir('/var/run/owrt-supervisor');
-	return `/var/run/owrt-supervisor/req.${time()}.${rand()}`;
+	mkdir('/var/run/ha-supervisor');
+	return `/var/run/ha-supervisor/req.${time()}.${rand()}`;
 };
 
 function run(cmd) {
