@@ -1,7 +1,9 @@
 'use strict';
 // UCI-backed configuration with defaults.
 import { cursor } from 'uci';
-import { popen } from 'fs';
+import { popen, stat } from 'fs';
+
+const CATALOG_DIR = '/usr/share/owrt-supervisor';
 
 const DEFAULTS = {
 	image: '',                            // '' = official image, or the armv7 community build (see CORE_IMAGES)
@@ -60,7 +62,7 @@ export function load() {
 		cfg.timezone = c.get('system', '@system[0]', 'zonename') || 'UTC';
 	cfg.arch = cfg.arch || detect_arch();
 	cfg.image = cfg.image || CORE_IMAGES[cfg.arch] || '';
-	cfg.catalog = cfg.catalog || `/usr/share/owrt-supervisor/catalog-${cfg.arch}.json`;
+	cfg.catalog = cfg.catalog || `${CATALOG_DIR}/catalog-${cfg.arch}.json`;
 	return cfg;
 };
 
@@ -72,6 +74,31 @@ export function set(key, value) {
 	c.save('owrt-supervisor');
 	c.commit('owrt-supervisor');
 };
+
+// Called at install/upgrade: write the detected architecture, the image and the catalog into
+// /etc/config/owrt-supervisor so they are explicit and editable. Only options that are not set
+// yet are written; whatever the user chose stays. Returns a list of what was written.
+export function init_defaults() {
+	let c = cursor();
+	let s = c.get_all('owrt-supervisor', 'main') ?? {};
+	let arch = s.arch || detect_arch();
+	let want = {
+		arch,
+		image: CORE_IMAGES[arch],                                     // undefined: no image for this arch
+		catalog: `${CATALOG_DIR}/catalog-${arch}.json`
+	};
+	let written = [];
+	for (let k, v in want) {
+		if (s[k] || !v)
+			continue;
+		if (k == 'catalog' && !stat(v))          // no catalog shipped for this architecture
+			continue;
+		set(k, v);
+		push(written, `${k}=${v}`);
+	}
+	return written;
+};
+
 
 export const STATE_DIR = '/var/run/owrt-supervisor';
 export const VERSION = '0.1.0';

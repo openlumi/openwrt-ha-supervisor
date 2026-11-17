@@ -4,4 +4,6 @@
 	uci set owrt-supervisor.main.token="$(head -c 24 /dev/urandom | hexdump -v -e '/1 "%02x"')"
 	uci commit owrt-supervisor
 }
+# make the architecture, the Home Assistant image and the add-on catalog explicit in the config
+/usr/sbin/owrt-supervisor init-config
 exit 0

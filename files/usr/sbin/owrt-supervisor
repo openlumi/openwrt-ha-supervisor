@@ -83,6 +83,14 @@ case 'addon-options':
 		out({ ok: addons.set_options(args[0], o) });
 	}
 	break;
+case 'init-config': {
+	// run by uci-defaults on install/upgrade: make arch, image and catalog explicit in UCI
+	for (let w in cfgm.init_defaults())
+		print(`owrt-supervisor: set ${w}\n`);
+	if (!cfgm.load().image)
+		warn(`owrt-supervisor: no Home Assistant image for architecture "${cfgm.load().arch}"; set 'option image' in /etc/config/owrt-supervisor\n`);
+	break;
+}
 case 'tags': {
 	let c = registry.check(cfgm.load(), true);
 	out(c ?? 'registry unreachable');
@@ -94,6 +102,6 @@ case 'set-source':
 	out({ image: args[0] });
 	break;
 default:
-	warn('usage: owrt-supervisor status|check|update [tag]|ensure|start|stop|restart|logs [n]|tags|set-source <image>\n       owrt-supervisor addons|addon-install|addon-uninstall|addon-start|addon-stop|addon-restart|addon-logs|addon-options <slug> [json]\n');
+	warn('usage: owrt-supervisor status|check|update [tag]|ensure|start|stop|restart|logs [n]|tags|set-source <image>|init-config\n       owrt-supervisor addons|addon-install|addon-uninstall|addon-start|addon-stop|addon-restart|addon-logs|addon-options <slug> [json]\n');
 	exit(2);
 }
