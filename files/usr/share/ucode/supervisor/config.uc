@@ -6,7 +6,7 @@ const DEFAULTS = {
 	image: 'ghcr.io/adyoull/ha-armv7',   // image source (no tag)
 	container: 'homeassistant',
 	config_dir: '/srv/homeassistant/config',
-	timezone: 'UTC',
+	timezone: '',                         // '' = follow the system zone (system.@system[0].zonename)
 	port: '8124',                         // supervisor API port (127.0.0.1)
 	token: '',
 	channel: 'stable',                    // stable = skip non-release tags, latest = follow :latest
@@ -30,6 +30,8 @@ export function load() {
 	let cfg = {};
 	for (let k, v in DEFAULTS)
 		cfg[k] = s[k] ?? v;
+	if (!cfg.timezone)
+		cfg.timezone = c.get('system', '@system[0]', 'zonename') || 'UTC';
 	return cfg;
 };
 

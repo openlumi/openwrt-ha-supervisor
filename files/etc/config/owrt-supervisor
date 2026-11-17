@@ -2,7 +2,7 @@ config supervisor 'main'
 	option image 'ghcr.io/adyoull/ha-armv7'
 	option container 'homeassistant'
 	option config_dir '/etc/homeassistant'
-	option timezone 'Europe/Moscow'
+	# option timezone 'Europe/Moscow'   # default: the system time zone
 	option port '8124'
 	option channel 'stable'
 	option backup_before_update '0'
