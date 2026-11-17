@@ -107,7 +107,8 @@ export function core_spec(cfg, image_ref, sup_token) {
 			Devices: devs
 		},
 		Healthcheck: {
-			Test: ['CMD-SHELL', `curl -fsS ${cfg.health_url} >/dev/null || exit 1`],
+			// python3 exists in every HA image; curl is not guaranteed
+			Test: ['CMD-SHELL', `python3 -c "import urllib.request; urllib.request.urlopen('${cfg.health_url}', timeout=8)" || exit 1`],
 			Interval: 30000000000, Timeout: 10000000000, Retries: 5, StartPeriod: 120000000000
 		}
 	};
