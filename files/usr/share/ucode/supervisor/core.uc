@@ -146,6 +146,9 @@ export function update(tag, job, backup) {
 // Make sure a container exists and runs (used at boot / first install).
 export function ensure() {
 	let cfg = load();
+	// right after install/boot dockerd may still be starting: wait up to ~2 min
+	for (let i = 0; i < 60 && !docker.ping(); i++)
+		system('sleep 2');
 	let ex = docker.exists(cfg.container);
 	if (ex == null) return { ok: false, error: 'docker not ready' };
 	if (!ex) return update(null, null);
