@@ -191,6 +191,28 @@ const NOOP_POST = ['/core/options', '/core/check', '/supervisor/reload', '/super
                    '/supervisor/options', '/host/reload', '/store/reload', '/network/reload',
                    '/reload_updates', '/resolution/healthcheck', '/backups/options', '/backups/reload', '/backups/freeze', '/backups/thaw', '/jobs/options', '/jobs/reset'];
 
+// Start an add-on install as a job. `background` returns the job id at once (the UI then watches
+// the job); otherwise block until it ends like a Supervisor call without background would.
+function install_addon(cfg, slug, body) {
+	let a = addons.find(cfg, slug);
+	if (!a)
+		return err(404, `Add-on ${slug} does not exist`);
+	if (addons.state().addons[slug])
+		return err(400, `Add-on ${slug} is already installed`);
+	if (a.available == false)
+		return err(400, addons.unavailable_reason(a));
+	let id = jobs.spawn('addon-install', slug);
+	if (body?.background)
+		return ok({ job_id: id });
+	for (let i = 0; i < 1800; i++) {      // up to ~1 h
+		let j = jobs.get(id);
+		if (j?.done)
+			return length(j.errors ?? []) ? err(500, j.errors[0]) : ok({ job_id: id });
+		system('sleep 2');
+	}
+	return err(504, 'install timed out');
+};
+
 // Add-on tokens may only use their own /addons/self subtree plus discovery/services/auth.
 function allowed_for_addon(path, slug) {
 	let own = '/addons/' + slug;
@@ -282,6 +304,8 @@ export function handle(method, path, body, headers, principal) {
 		let slug = am[1], sub = am[2] ?? '/info';
 		if (slug == 'self')
 			return err(404, 'no add-on context');
+		if (method == 'POST' && sub == '/install')      // legacy alias of /store/addons/<slug>/install
+			return install_addon(cfg, slug, body);
 		if (!addons.state().addons[slug]) {
 			// Like the real Supervisor, /info of an add-on that is only in the store answers with the
 			// store data (installed: false): that is how the UI shows its page with an Install button.
@@ -322,18 +346,8 @@ export function handle(method, path, body, headers, principal) {
 		}
 		if (act == 'update')
 			return err(400, 'The add-on catalog is a frozen snapshot: updates are not available');
-		if (act == 'install' && method == 'POST') {
-			let id = jobs.spawn('addon-install', slug);
-			if (body?.background)
-				return ok({ job_id: id });
-			for (let i = 0; i < 1800; i++) {      // up to ~1 h, like a blocking Supervisor call
-				let j = jobs.get(id);
-				if (j?.done)
-					return length(j.errors ?? []) ? err(500, j.errors[0]) : ok({ job_id: id });
-				system('sleep 2');
-			}
-			return err(504, 'install timed out');
-		}
+		if (act == 'install' && method == 'POST')
+			return install_addon(cfg, slug, body);
 	}
 
 	// --- services / discovery / auth (called by add-ons) -----------------------------------
