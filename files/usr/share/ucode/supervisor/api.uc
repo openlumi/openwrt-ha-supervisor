@@ -164,15 +164,35 @@ function hardware_info() {
 	return { devices };
 };
 
-// System log as plain text. Supervisor clients ask for N lines via `Range: entries=:-N:`.
-function host_logs(headers) {
-	let n = 100;
+// Number of lines a client asks for: `Range: entries=:-N:` (Supervisor's journal API).
+function range_lines(headers, dflt) {
 	let m = match(headers?.range ?? '', /^entries=[^:]*:-?([0-9]+):/);
-	if (m) n = min(+m[1] || 100, 5000);
-	let p = popen(`logread -l ${n} 2>&1`, 'r');
+	return m ? min(+m[1] || dflt, 5000) : dflt;
+};
+
+// System log as plain text.
+function host_logs(headers) {
+	let p = popen(`logread -l ${range_lines(headers, 100)} 2>&1`, 'r');
 	let out = p ? p.read('all') : '';
 	if (p) p.close();
 	return out;
+};
+
+// This supervisor's own log: messages it sent to the system log (errors, install hooks) followed
+// by its API traffic (/var/run/ha-supervisor/access.log: "<epoch> <method> <path> <status>").
+function supervisor_logs(headers) {
+	let n = range_lines(headers, 100);
+	let p = popen(`logread -e ha-supervisor 2>&1 | tail -n ${n}`, 'r');
+	let out = p ? p.read('all') : '';
+	if (p) p.close();
+	let api = [];
+	for (let l in split(readfile('/var/run/ha-supervisor/access.log') ?? '', '\n')) {
+		let m = match(l, /^([0-9]+) (\S+) (\S+) (\S+)$/);
+		if (!m) continue;
+		let t = localtime(+m[1]);
+		push(api, sprintf('%04d-%02d-%02d %02d:%02d:%02d API %s %s -> %s\n', t.year, t.mon, t.mday, t.hour, t.min, t.sec, m[2], m[3], m[4]));
+	}
+	return out + join('', slice(api, -n));
 };
 
 const STATIC = {
@@ -270,7 +290,6 @@ export function handle(method, path, body, headers, principal) {
 	case 'POST /core/stop':    return core.stop() ? ok() : err(500, 'stop failed');
 	case 'POST /core/restart': return core.restart() ? ok() : err(500, 'restart failed');
 	case 'POST /core/rebuild': return ok({ job_id: jobs.spawn('update', `${core.info(cfg).version ?? ''} --no-backup`) });
-	case 'GET /core/logs':     return { code: 200, text: core.logs(200) };
 	case 'POST /refresh_updates':
 		core.info(cfg, true);
 		return ok();
@@ -307,6 +326,27 @@ export function handle(method, path, body, headers, principal) {
 		return ok(STATIC[path]);
 	if (method == 'POST' && (path in NOOP_POST))
 		return ok();
+
+	// --- logs: /core, /supervisor and /addons/<slug> share one shape ------------------------------
+	// The UI asks for .../logs, .../logs/follow (a stream in the real Supervisor: here the last
+	// lines, refresh to see more), .../logs/latest and .../logs/boots[/<n>] (journal boots: one).
+	let lm = match(path, /^(\/addons\/[A-Za-z0-9_]+|\/core|\/supervisor)\/logs(\/.*)?$/);
+	if (method == 'GET' && lm) {
+		let sub = lm[2] ?? '';
+		if (sub == '/boots')
+			return ok({ boots: { '0': 'current' } });
+		if (match(sub, /^(\/(latest|boots\/[^\/]+))?(\/follow)?$/)) {
+			let n = range_lines(headers, 100);
+			if (lm[1] == '/core')
+				return { code: 200, text: core.logs(n) };
+			if (lm[1] == '/supervisor')
+				return { code: 200, text: supervisor_logs(headers) };
+			let slug = substr(lm[1], length('/addons/'));
+			if (!addons.state().addons[slug])
+				return err(404, `Add-on ${slug} is not installed`);
+			return { code: 200, text: addons.logs(slug, n) };
+		}
+	}
 
 	// --- ingress: sessions and panels (the proxy itself lives in ha-supervisor-http) ----------------
 	if (method == 'GET' && path == '/ingress/panels')
@@ -372,7 +412,6 @@ export function handle(method, path, body, headers, principal) {
 				return err(500, 'cannot set options');
 			return ok();
 		}
-		case 'GET /logs':           return { code: 200, text: addons.logs(slug, 200) };
 		case 'GET /stats':          return ok(stats(addons.stats(slug)));
 		}
 		return err(404, 'not supported');

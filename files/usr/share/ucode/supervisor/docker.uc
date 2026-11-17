@@ -66,9 +66,24 @@ export function remove(name) {
 	return r.status == 204 || r.status == 404;
 };
 
+// Docker sends the output of a container without a TTY as frames: an 8-byte header (stream
+// 1=stdout/2=stderr, three zero bytes, big-endian length) and the payload. Strip the headers;
+// a TTY container (plain text) is returned unchanged.
+function demux(raw) {
+	let n = length(raw ?? '');
+	if (n < 8 || (ord(raw, 0) != 1 && ord(raw, 0) != 2) || ord(raw, 1) != 0 || ord(raw, 2) != 0 || ord(raw, 3) != 0)
+		return raw ?? '';
+	let out = [], i = 0;
+	while (i + 8 <= n) {
+		let len = (ord(raw, i + 4) << 24) | (ord(raw, i + 5) << 16) | (ord(raw, i + 6) << 8) | ord(raw, i + 7);
+		push(out, substr(raw, i + 8, len));
+		i += 8 + len;
+	}
+	return join('', out);
+};
+
 export function logs(name, tail) {
-	// tty=true containers return raw text; otherwise multiplexed frames (best effort)
-	return call('GET', `/containers/${name}/logs?stdout=1&stderr=1&tail=${tail ?? 200}`).body;
+	return demux(call('GET', `/containers/${name}/logs?stdout=1&stderr=1&tail=${tail ?? 200}`).body);
 };
 
 export function stats(name) {
