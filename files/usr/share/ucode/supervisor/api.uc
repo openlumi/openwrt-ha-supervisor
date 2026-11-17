@@ -249,6 +249,11 @@ export function handle(method, path, body, headers, principal) {
 			cfgm.set(k, body[k]);
 		}
 		return ok();
+	case 'POST /supervisor/update':
+		// During onboarding HA's hassio integration calls this and treats HTTP 400 as "nothing to
+		// update, carry on". Any other error (a 404) makes it retry forever; 200 makes it wait for
+		// an update that never finishes. This supervisor is not self-updating: always 400.
+		return err(400, 'No update available');
 	case 'POST /host/reboot':
 		system('(sleep 2; reboot) >/dev/null 2>&1 &');
 		return ok();
