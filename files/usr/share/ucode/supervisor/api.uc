@@ -191,6 +191,14 @@ const NOOP_POST = ['/core/options', '/core/check', '/supervisor/reload', '/super
                    '/supervisor/options', '/host/reload', '/store/reload', '/network/reload',
                    '/reload_updates', '/resolution/healthcheck', '/backups/options', '/backups/reload', '/backups/freeze', '/backups/thaw', '/jobs/options', '/jobs/reset'];
 
+// Documentation / changelog as plain text, downloaded on demand (see addons.doc()).
+function doc_response(cfg, slug, kind) {
+	if (!addons.find(cfg, slug))
+		return err(404, `Add-on ${slug} does not exist`);
+	let d = addons.doc(cfg, slug, kind);
+	return d.text != null ? { code: 200, text: d.text } : err(502, d.error);
+};
+
 // Start an add-on install as a job. `background` returns the job id at once (the UI then watches
 // the job); otherwise block until it ends like a Supervisor call without background would.
 function install_addon(cfg, slug, body) {
@@ -306,6 +314,8 @@ export function handle(method, path, body, headers, principal) {
 			return err(404, 'no add-on context');
 		if (method == 'POST' && sub == '/install')      // legacy alias of /store/addons/<slug>/install
 			return install_addon(cfg, slug, body);
+		if (method == 'GET' && (sub == '/documentation' || sub == '/changelog'))
+			return doc_response(cfg, slug, substr(sub, 1));
 		if (!addons.state().addons[slug]) {
 			// Like the real Supervisor, /info of an add-on that is only in the store answers with the
 			// store data (installed: false): that is how the UI shows its page with an Install button.
@@ -333,7 +343,7 @@ export function handle(method, path, body, headers, principal) {
 		return err(404, 'not supported');
 	}
 
-	let sm = match(path, /^\/store\/addons\/([A-Za-z0-9_]+)(\/(install|update|availability))?$/);
+	let sm = match(path, /^\/store\/addons\/([A-Za-z0-9_]+)(\/(install|update|availability|documentation|changelog))?$/);
 	if (sm) {
 		let slug = sm[1], act = sm[3];
 		if (!addons.find(cfg, slug))
@@ -344,6 +354,8 @@ export function handle(method, path, body, headers, principal) {
 			let a = addons.find(cfg, slug);
 			return a.available == false ? err(400, addons.unavailable_reason(a)) : ok();
 		}
+		if ((act == 'documentation' || act == 'changelog') && method == 'GET')
+			return doc_response(cfg, slug, act);
 		if (act == 'update')
 			return err(400, 'The add-on catalog is a frozen snapshot: updates are not available');
 		if (act == 'install' && method == 'POST')

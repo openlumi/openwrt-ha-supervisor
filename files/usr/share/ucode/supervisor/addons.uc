@@ -6,7 +6,7 @@
 import * as docker from 'supervisor.docker';
 import * as jobs from 'supervisor.jobs';
 import * as http from 'supervisor.http';
-import { load } from 'supervisor.config';
+import { load, STATE_DIR } from 'supervisor.config';
 import { readfile, writefile, mkdir, popen } from 'fs';
 
 const BASE = '/etc/ha-supervisor';
@@ -29,6 +29,38 @@ export function find(cfg, slug) {
 export function unavailable_reason(a) {
 	return 'This add-on needs features that ha-supervisor does not support: ' +
 	       join(', ', a.unsupported ?? ['unknown']);
+};
+
+// DOCS.md / CHANGELOG.md of an add-on, fetched online from the repository the catalog was built
+// from, at the pinned commit (the text is deliberately not shipped in the package). Tries
+// raw.githubusercontent.com first; some networks only reach api.github.com, so it falls back to
+// that one's contents API. Content at a pinned commit never changes: cached in tmpfs.
+// Returns { text } or { error }.
+export function doc(cfg, slug, kind) {
+	let a = find(cfg, slug);
+	let src = a?.source;
+	if (!src)
+		return { error: 'this add-on has no documentation source' };
+	let file = kind == 'changelog' ? 'CHANGELOG.md' : 'DOCS.md';
+	let cache = `${STATE_DIR}/docs/${slug}.${file}`;
+	let cached = readfile(cache);
+	if (cached != null)
+		return { text: cached };
+	let tries = [
+		{ host: 'raw.githubusercontent.com', headers: {},
+		  url: `https://raw.githubusercontent.com/${src.repo}/${src.ref}/${src.dir}/${file}` },
+		{ host: 'api.github.com', headers: { Accept: 'application/vnd.github.raw' },
+		  url: `https://api.github.com/repos/${src.repo}/contents/${src.dir}/${file}?ref=${src.ref}` }
+	];
+	for (let t in tries) {
+		let r = http.request(t.url, { headers: t.headers, timeout: 15 });
+		if (http.ok(r) && length(r.body)) {
+			system(`mkdir -p '${STATE_DIR}/docs'`);
+			writefile(cache, r.body);
+			return { text: r.body };
+		}
+	}
+	return { error: `Cannot download ${file} (tried raw.githubusercontent.com and api.github.com from ${src.repo}@${substr(src.ref, 0, 8)}): check the router's access to GitHub` };
 };
 
 function read_state() {
@@ -319,7 +351,7 @@ export function complete(cfg, slug) {
 	v.network_description = {};
 	v.host_ipc = false; v.host_uts = false; v.host_dbus = false;
 	v.privileged = [];
-	v.changelog = false; v.stdin = false; v.gpio = false; v.usb = false; v.uart = false;
+	v.changelog = !!a.changelog; v.stdin = false; v.gpio = false; v.usb = false; v.uart = false;
 	v.kernel_modules = false; v.devicetree = false; v.udev = false; v.video = false; v.audio = false;
 	v.startup = spec.startup ?? 'application';
 	v.services = spec.services ?? [];

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Render a Supervisor `StoreInfo` catalog for one architecture from a checkout of an add-on repository.
 
-    python3 tools/build_catalog.py <checkout> <arch>  > files/usr/share/ha-supervisor/catalog-<arch>.json
+    python3 tools/build_catalog.py <checkout> <arch> <owner/repo> <ref>  > files/usr/share/ha-supervisor/catalog-<arch>.json
 
 (`tools/build-catalogs.sh` produces all of them from pinned commits.)
 
@@ -9,7 +9,9 @@ The router has no YAML parser, so the catalog is rendered ahead of time. Every a
 declares <arch> is listed. An add-on that needs runtime features this supervisor does not
 implement (see UNSUPPORTED) stays in the list but is marked `available: false`, with the
 reasons in `unsupported`; installing it is refused instead of producing a broken container.
-Each entry also carries `spec`: the parsed config.yaml, used to create the container.
+Each entry also carries `spec`: the parsed config.yaml, used to create the container, and
+`source` {repo, ref, dir}: where DOCS.md and CHANGELOG.md are fetched from on demand, at that
+exact commit. The documentation itself is deliberately not shipped in the package.
 
 Requires PyYAML (build host only). The checkout is untrusted input: it is only read.
 """
@@ -56,7 +58,7 @@ def unsupported(c):
     return bad
 
 
-def main(root, arch):
+def main(root, arch, repo, ref):
     addons = []
     for cfg in sorted(pathlib.Path(root).glob("*/config.yaml")):
         c = yaml.safe_load(cfg.read_text())
@@ -83,6 +85,8 @@ def main(root, arch):
             "version": None,
             "arch": c.get("arch"),
             "documentation": (d / "DOCS.md").exists(),
+            "changelog": (d / "CHANGELOG.md").exists(),
+            "source": {"repo": repo, "ref": ref, "dir": d.name},
             "installed": False,
             "unsupported": bad,
             "spec": c,
@@ -92,6 +96,6 @@ def main(root, arch):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 5:
         sys.exit(__doc__)
-    main(sys.argv[1], sys.argv[2])
+    main(*sys.argv[1:])

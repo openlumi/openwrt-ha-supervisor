@@ -24,6 +24,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "cec_scan"
+   },
    "installed": false,
    "unsupported": [
     "video"
@@ -74,6 +80,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "configurator"
+   },
    "installed": false,
    "unsupported": [
     "homeassistant_api",
@@ -155,6 +167,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "dhcp_server"
+   },
    "installed": false,
    "unsupported": [
     "host_network"
@@ -255,6 +273,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "dnsmasq"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -350,6 +374,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "duckdns"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -433,6 +463,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "git_pull"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -525,6 +561,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "letsencrypt"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -696,6 +738,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "mariadb"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -789,6 +837,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "mosquitto"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -879,6 +933,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "nginx_proxy"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -959,6 +1019,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "rpc_shutdown"
+   },
    "installed": false,
    "unsupported": [
     "host_network",
@@ -1030,6 +1096,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "samba"
+   },
    "installed": false,
    "unsupported": [
     "host_network"
@@ -1136,6 +1208,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "silabs-multiprotocol"
+   },
    "installed": false,
    "unsupported": [
     "host_network",
@@ -1229,6 +1307,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "silabs_flasher"
+   },
    "installed": false,
    "unsupported": [
     "gpio",
@@ -1294,6 +1378,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "ssh"
+   },
    "installed": false,
    "unsupported": [
     "host_dbus",
@@ -1384,6 +1474,12 @@
     "i386"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "tellstick"
+   },
    "installed": false,
    "unsupported": [
     "usb",
@@ -1467,6 +1563,12 @@
     "aarch64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "vlc"
+   },
    "installed": false,
    "unsupported": [
     "audio",
@@ -1527,6 +1629,12 @@
     "aarch64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "b9b856c91568bd5ae97f22e6f25326a57c08470c",
+    "dir": "zwave_js"
+   },
    "installed": false,
    "unsupported": [
     "device option (device passthrough)"

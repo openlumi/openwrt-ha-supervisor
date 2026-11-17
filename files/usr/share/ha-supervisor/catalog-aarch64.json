@@ -21,6 +21,12 @@
     "aarch64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "assist_microphone"
+   },
    "installed": false,
    "unsupported": [
     "audio"
@@ -96,6 +102,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "cec_scan"
+   },
    "installed": false,
    "unsupported": [
     "video"
@@ -138,6 +150,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "configurator"
+   },
    "installed": false,
    "unsupported": [
     "homeassistant_api",
@@ -215,6 +233,12 @@
     "aarch64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "deconz"
+   },
    "installed": false,
    "unsupported": [
     "privileged",
@@ -313,6 +337,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "dnsmasq"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -415,6 +445,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "duckdns"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -492,6 +528,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "git_pull"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -577,6 +619,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "letsencrypt"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -754,6 +802,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "mariadb"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -845,6 +899,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "matter_server"
+   },
    "installed": false,
    "unsupported": [
     "host_network",
@@ -931,6 +991,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "mosquitto"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -1022,6 +1088,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "nginx_proxy"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -1101,6 +1173,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "openthread_border_router"
+   },
    "installed": false,
    "unsupported": [
     "host_network",
@@ -1194,6 +1272,12 @@
     "aarch64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "openwakeword"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -1254,6 +1338,12 @@
     "aarch64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "piper"
+   },
    "installed": false,
    "unsupported": [
     "ingress"
@@ -1340,6 +1430,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "rpc_shutdown"
+   },
    "installed": false,
    "unsupported": [
     "host_network",
@@ -1405,6 +1501,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "samba"
+   },
    "installed": false,
    "unsupported": [
     "host_network"
@@ -1512,6 +1614,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "silabs-multiprotocol"
+   },
    "installed": false,
    "unsupported": [
     "host_network",
@@ -1606,6 +1714,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "silabs_flasher"
+   },
    "installed": false,
    "unsupported": [
     "gpio",
@@ -1665,6 +1779,12 @@
     "aarch64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "speech_to_phrase"
+   },
    "installed": false,
    "unsupported": [
     "homeassistant_api"
@@ -1724,6 +1844,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "ssh"
+   },
    "installed": false,
    "unsupported": [
     "host_dbus",
@@ -1807,6 +1933,12 @@
     "amd64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "vlc"
+   },
    "installed": false,
    "unsupported": [
     "audio",
@@ -1859,6 +1991,12 @@
     "aarch64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "voice_support"
+   },
    "installed": false,
    "unsupported": [
     "tmpfs"
@@ -1909,6 +2047,12 @@
     "aarch64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "whisper"
+   },
    "installed": false,
    "unsupported": [],
    "spec": {
@@ -1985,6 +2129,12 @@
     "aarch64"
    ],
    "documentation": true,
+   "changelog": true,
+   "source": {
+    "repo": "home-assistant/addons",
+    "ref": "f46a10207c7606bc3785d028f63fbf8ac3e973bf",
+    "dir": "zwave_js"
+   },
    "installed": false,
    "unsupported": [
     "ingress",

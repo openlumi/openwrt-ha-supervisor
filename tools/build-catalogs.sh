@@ -20,7 +20,7 @@ python3 -m venv "$WORK/venv" && "$WORK/venv/bin/pip" install -q pyyaml >/dev/nul
 render() {   # <ref> <arch>
   mkdir -p "$WORK/src-$2" && git -C "$REPO" archive "$1" | tar -x -C "$WORK/src-$2"
   # run from a neutral dir, the checkout is data only
-  (cd / && "$WORK/venv/bin/python" "$ROOT/tools/build_catalog.py" "$WORK/src-$2" "$2") > "$OUT/catalog-$2.json"
+  (cd / && "$WORK/venv/bin/python" "$ROOT/tools/build_catalog.py" "$WORK/src-$2" "$2" home-assistant/addons "$(git -C "$REPO" rev-parse "$1")") > "$OUT/catalog-$2.json"
   echo "catalog-$2.json: $("$WORK/venv/bin/python" -c "import json;d=json.load(open('$OUT/catalog-$2.json'))['addons'];print(len(d),'add-ons,',sum(a['available'] for a in d),'installable')")"
 }
 render "$SNAPSHOT_ARMV7" armv7
