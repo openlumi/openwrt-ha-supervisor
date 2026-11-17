@@ -301,6 +301,7 @@ export function complete(cfg, slug) {
 	v.signed = false;
 	v.hassio_api = !!spec.hassio_api;
 	v.hassio_role = spec.hassio_role ?? 'default';
+	v.detached = false;      // part of the store model too (StoreAddonComplete)
 	if (!e)
 		return v;
 	let i = docker.inspect(cname(slug));

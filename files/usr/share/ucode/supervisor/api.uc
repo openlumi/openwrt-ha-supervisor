@@ -282,8 +282,13 @@ export function handle(method, path, body, headers, principal) {
 		let slug = am[1], sub = am[2] ?? '/info';
 		if (slug == 'self')
 			return err(404, 'no add-on context');
-		if (!addons.state().addons[slug])
+		if (!addons.state().addons[slug]) {
+			// Like the real Supervisor, /info of an add-on that is only in the store answers with the
+			// store data (installed: false): that is how the UI shows its page with an Install button.
+			if (method == 'GET' && sub == '/info' && addons.find(cfg, slug))
+				return ok(addons.complete(cfg, slug));
 			return err(404, `Add-on ${slug} is not installed`);
+		}
 		switch (`${method} ${sub}`) {
 		case 'GET /info':           return ok(addons.complete(cfg, slug));
 		case 'POST /start':         return addons.start(slug) ? ok() : err(500, 'start failed');
