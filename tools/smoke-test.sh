@@ -50,6 +50,8 @@ check "hook wrote an existing catalog"          "[ -s \"\$(U catalog)\" ] && [ \
 check "hook generated the API token"            "[ -n \"\$(U token)\" ]"
 check "uci-defaults script was consumed"        "[ ! -e /etc/uci-defaults/90-ha-supervisor ]"
 check "service enabled at boot"                 "ls /etc/rc.d | grep -q S99ha-supervisor"
+check "nft rule for supervisor:80 shipped"       "[ -s /usr/share/nftables.d/chain-pre/dstnat/90-ha-supervisor.nft ]"
+check "ingress module and relay tools present"  "[ -s /usr/share/ucode/supervisor/ingress.uc ] && command -v socat >/dev/null"
 check "ucode modules load on this release"      "[ \"\$(ha-supervisor addons 2>&1 | head -c 1)\" = \"[\" ]"
 T="$(U token)"
 check "API handler answers an authorised ping"  "printf \"GET /supervisor/ping HTTP/1.0\r\nAuthorization: Bearer \$T\r\n\r\n\" | ha-supervisor-http | grep -q \"HTTP/1.0 200\""

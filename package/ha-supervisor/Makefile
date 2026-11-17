@@ -23,11 +23,12 @@ define Build/Compile
 endef
 
 define Package/ha-supervisor/install
-	$(INSTALL_DIR) $(1)/lib/upgrade/keep.d $(1)/usr/sbin $(1)/usr/share/ucode/supervisor $(1)/usr/share/ha-supervisor \
+	$(INSTALL_DIR) $(1)/lib/upgrade/keep.d $(1)/usr/share/nftables.d/chain-pre/dstnat $(1)/usr/sbin $(1)/usr/share/ucode/supervisor $(1)/usr/share/ha-supervisor \
 		$(1)/etc/config $(1)/etc/init.d $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ../../files/usr/sbin/ha-supervisor ../../files/usr/sbin/ha-supervisor-http $(1)/usr/sbin/
 	$(INSTALL_DATA) ../../files/usr/share/ucode/supervisor/*.uc $(1)/usr/share/ucode/supervisor/
 	$(INSTALL_DATA) ../../files/usr/share/ha-supervisor/catalog-*.json $(1)/usr/share/ha-supervisor/
+	$(INSTALL_DATA) ../../files/usr/share/nftables.d/chain-pre/dstnat/90-ha-supervisor.nft $(1)/usr/share/nftables.d/chain-pre/dstnat/
 	$(INSTALL_DATA) ../../files/lib/upgrade/keep.d/ha-supervisor $(1)/lib/upgrade/keep.d/
 	$(INSTALL_CONF) ../../files/etc/config/ha-supervisor $(1)/etc/config/
 	$(INSTALL_BIN) ../../files/etc/init.d/ha-supervisor $(1)/etc/init.d/

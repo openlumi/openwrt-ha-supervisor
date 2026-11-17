@@ -176,7 +176,7 @@ function write_options(slug, options) {
 
 // --- lifecycle --------------------------------------------------------------------------
 
-export function install(slug, job) {
+function install_locked(slug, job) {
 	let cfg = load();
 	function step(stage, pct) { if (job) jobs.update(job, { stage, progress: pct }); }
 	function fail(msg) {
@@ -224,10 +224,23 @@ export function install(slug, job) {
 		write_state(st);
 		return fail('start failed');
 	}
-	if (spec.ingress)
-		system(`/usr/sbin/ha-supervisor panel-push ${slug} >/dev/null 2>&1 &`);
 	if (job) jobs.update(job, { done: true, progress: 100, stage: 'done' });
 	return { ok: true, version: tag };
+};
+
+// One install per add-on at a time: the UI and a CLI call can race, and a second create fails with
+// a container-name conflict. mkdir is the atomic lock; a lock older than 2 h is a leftover.
+export function install(slug, job) {
+	let lock = `${STATE_DIR}/install-${slug}.lock`;
+	system(`find '${lock}' -maxdepth 0 -mmin +120 -exec rmdir {} + 2>/dev/null`);
+	if (system(`mkdir '${lock}' 2>/dev/null`) != 0) {
+		let msg = 'an install of this add-on is already in progress';
+		if (job) jobs.update(job, { done: true, errors: [msg], stage: 'failed' });
+		return { ok: false, error: msg };
+	}
+	let r = install_locked(slug, job);
+	system(`rmdir '${lock}' 2>/dev/null`);
+	return r;
 };
 
 export function uninstall(slug) {
@@ -293,13 +306,15 @@ export function ingress_token(slug) {
 	return e.ingress_token;
 };
 
-// Ask HA to re-read /ingress/panels for this add-on (it registers or removes the sidebar panel).
+// Tell HA about this add-on's panel: POST when its "Show in sidebar" is on (HA then reads
+// /ingress/panels and registers it), DELETE when it is off or the add-on is gone. Returns HA's HTTP
+// status, 0 when HA could not be reached (yet). Pushing a disabled panel makes HA log an error.
 export function panel_push(slug) {
 	let cfg = load();
-	let installed = !!read_state().addons[slug];
+	let e = read_state().addons[slug];
 	let r = http.request(`http://localhost/api/hassio_push/panel/${slug}`,
-		{ method: installed ? 'POST' : 'DELETE', unix: cfg.core_socket, timeout: 30 });
-	return http.ok(r);
+		{ method: (e && e.ingress_panel) ? 'POST' : 'DELETE', unix: cfg.core_socket, timeout: 30 });
+	return r.status;
 };
 
 // --- API views --------------------------------------------------------------------------
