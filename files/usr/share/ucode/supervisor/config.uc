@@ -15,7 +15,8 @@ const DEFAULTS = {
 	token: '',
 	channel: 'stable',                    // stable = skip non-release tags, latest = follow :latest
 	tag_regex: '^[0-9]{4}\\.[0-9]+\\.[0-9]+(-r[0-9]+)?$',
-	health_url: 'http://127.0.0.1:8123/manifest.json',
+	core_port: '8123',                    // Home Assistant's HTTP port (passed as SETUP_PORT, see docker.uc)
+	health_url: '',                       // '' = http://127.0.0.1:<core_port>/manifest.json
 	health_timeout: '300',
 	registry_user: '',
 	registry_pass: '',
@@ -60,6 +61,7 @@ export function load() {
 		cfg[k] = s[k] ?? v;
 	if (!cfg.timezone)
 		cfg.timezone = c.get('system', '@system[0]', 'zonename') || 'UTC';
+	cfg.health_url = cfg.health_url || `http://127.0.0.1:${cfg.core_port}/manifest.json`;
 	cfg.arch = cfg.arch || detect_arch();
 	cfg.image = cfg.image || CORE_IMAGES[cfg.arch] || '';
 	cfg.catalog = cfg.catalog || `${CATALOG_DIR}/catalog-${cfg.arch}.json`;

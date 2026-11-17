@@ -76,7 +76,7 @@ function core_info(cfg) {
 	return {
 		version: i.version, version_latest: i.version_latest, update_available: i.update_available,
 		machine: board().model, ip_address: LOCAL_IP, arch: cfg.arch, image: cfg.image,
-		boot: true, port: 8123, ssl: false, watchdog: true, audio_input: null, audio_output: null,
+		boot: true, port: +cfg.core_port, ssl: false, watchdog: true, audio_input: null, audio_output: null,
 		backups_exclude_database: false, duplicate_log_file: false,
 		// extras (ignored by the client if unknown)
 		state: i.state, health: i.health

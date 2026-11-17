@@ -92,7 +92,10 @@ export function core_spec(cfg, image_ref, sup_token) {
 			`SUPERVISOR=127.0.0.1:${cfg.port}`,
 			`SUPERVISOR_TOKEN=${sup_token}`,
 			// HA opens this unix socket and trusts it as the Supervisor user (discovery push)
-			'SUPERVISOR_CORE_API_SOCKET=/run/supervisor-core/core.sock'
+			'SUPERVISOR_CORE_API_SOCKET=/run/supervisor-core/core.sock',
+			// With SUPERVISOR set Home Assistant defaults to port 80 (Supervisor fronts it there); on
+			// OpenWrt that port belongs to LuCI, so Core would fail to bind and fall into recovery mode
+			`SETUP_PORT=${cfg.core_port}`
 		],
 		Labels: { 'ha.supervisor': 'core' },
 		HostConfig: {
