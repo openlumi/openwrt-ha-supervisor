@@ -13,6 +13,9 @@ fi
 	uci set ha-supervisor.main.token="$(head -c 24 /dev/urandom | hexdump -v -e '/1 "%02x"')"
 	uci commit ha-supervisor
 }
+# pick up /usr/share/nftables.d/chain-pre/dstnat/90-ha-supervisor.nft
+[ -x /etc/init.d/firewall ] && /etc/init.d/firewall reload >/dev/null 2>&1
+
 # make the architecture, the Home Assistant image and the add-on catalog explicit in the config
 /usr/sbin/ha-supervisor init-config
 exit 0

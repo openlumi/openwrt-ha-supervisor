@@ -6,6 +6,7 @@ import * as fsm from 'fs';
 import * as api from 'supervisor.api';
 import * as cfgm from 'supervisor.config';
 import * as addons from 'supervisor.addons';
+import * as ingress from 'supervisor.ingress';
 
 function reply(code, ctype, text) {
 	stdout.write(`HTTP/1.0 ${code} X\r\nContent-Type: ${ctype}\r\nContent-Length: ${length(text)}\r\nConnection: close\r\n\r\n${text}`);
@@ -16,7 +17,7 @@ let line = stdin.read('line');
 let m = match(line ?? '', /^([A-Z]+) (\S+)/);
 if (!m)
 	exit(0);
-let method = m[1], path = split(m[2], '?')[0];
+let method = m[1], target = m[2], path = split(target, '?')[0];
 
 let headers = {};
 while ((line = stdin.read('line')) != null) {
@@ -29,6 +30,61 @@ while ((line = stdin.read('line')) != null) {
 }
 
 let cfg = cfgm.load();
+
+// body (Content-Length or chunked); up to 8 MiB so file uploads through an add-on UI work
+const MAX_BODY = 8388608;
+let body, raw = '';
+let n = +(headers['content-length'] ?? 0);
+if (lc(headers['transfer-encoding'] ?? '') == 'chunked') {
+	while ((line = stdin.read('line')) != null) {
+		let sz = hex(trim(split(line, ';')[0])) ?? 0;
+		if (!sz || length(raw) + sz > MAX_BODY)
+			break;
+		raw += stdin.read(sz);
+		stdin.read('line');   // trailing CRLF of the chunk
+	}
+} else if (n > 0 && n <= MAX_BODY) {
+	raw = stdin.read(n);
+}
+
+function access_log(code) {
+	let lf = fsm.open('/var/run/ha-supervisor/access.log', 'a');
+	if (!lf)
+		return;
+	lf.write(`${time()} ${method} ${path} ${code}\n`);
+	lf.close();
+	if (fsm.stat('/var/run/ha-supervisor/access.log')?.size > 65536)
+		fsm.unlink('/var/run/ha-supervisor/access.log');
+};
+
+// --- add-on web UI: /ingress/<token>/<path> -----------------------------------------------------
+// Home Assistant forwards its /api/hassio_ingress/ view here with no credentials of its own: the
+// browser's session cookie is the authentication. Only the loopback listener serves it, so an
+// add-on container on the bridge cannot reach another add-on's UI this way.
+let im = match(target, /^\/ingress\/([0-9a-f]{32})(\/.*)?$/);
+if (im) {
+	if (getenv('SOCAT_SOCKADDR') != '127.0.0.1') {
+		access_log(403);
+		reply(403, 'text/plain', 'ingress is only served on the loopback listener');
+		exit(0);
+	}
+	let ck = ingress.cookie_session(headers);
+	if (!ingress.session_valid(ck.id)) {
+		access_log(401);
+		reply(401, 'text/plain', 'invalid or missing ingress session');
+		exit(0);
+	}
+	let t = ingress.target(cfg, im[1]);
+	if (!t) {
+		access_log(502);
+		reply(502, 'text/plain', 'the add-on is not running');
+		exit(0);
+	}
+	access_log('relay');
+	ingress.proxy(cfg, t, method, im[2] ?? '/', headers, raw, ck.rest);
+	exit(0);      // the relay already answered; only reached when it could not
+}
+
 // Bearer token, or X-Supervisor-Token (sent by nginx inside add-ons). Supervisor token = full
 // access; an add-on token only identifies that add-on and is restricted in api.handle().
 let tok = headers['x-supervisor-token'];
@@ -42,33 +98,13 @@ if (!principal) {
 	exit(0);
 }
 
-let body, raw = '';
-let n = +(headers['content-length'] ?? 0);
-if (lc(headers['transfer-encoding'] ?? '') == 'chunked') {
-	while ((line = stdin.read('line')) != null) {
-		let sz = hex(trim(split(line, ';')[0])) ?? 0;
-		if (!sz || length(raw) + sz > 65536)
-			break;
-		raw += stdin.read(sz);
-		stdin.read('line');   // trailing CRLF of the chunk
-	}
-} else if (n > 0 && n < 65536) {
-	raw = stdin.read(n);
-}
 if (length(raw)) {
 	try { body = json(raw); } catch (e) { body = null; }
 }
 
 let r = api.handle(method, path, body, headers, principal);
-// tiny access log in tmpfs; truncated when it grows past ~64 KiB
-let lf = fsm.open('/var/run/ha-supervisor/access.log', 'a');
-if (lf) {
-	lf.write(`${time()} ${method} ${path} ${r.code}\n`);
-	lf.close();
-	if (fsm.stat('/var/run/ha-supervisor/access.log')?.size > 65536)
-		fsm.unlink('/var/run/ha-supervisor/access.log');
-}
+access_log(r.code);
 if (r.text != null)
-	reply(r.code, 'text/plain', r.text);
+	reply(r.code, r.ctype ?? 'text/plain', r.text);
 else
 	reply(r.code, 'application/json', sprintf('%J', r.body));

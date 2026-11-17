@@ -8,6 +8,13 @@ start_service() {
 	local port
 	port="$(uci -q get ha-supervisor.main.port)"; port="${port:-8124}"
 
+	# 172.30.32.2 is where add-ons expect the Supervisor (many accept requests only from it, and
+	# the ingress proxy uses it as its source address). A local address on lo is enough: replies
+	# from a container are routed back to the host, which owns it.
+	local sup
+	sup="$(uci -q get ha-supervisor.main.supervisor_ip)"; sup="${sup:-172.30.32.2}"
+	ip -4 addr show dev lo | grep -q " $sup/" || ip addr add "$sup/32" dev lo
+
 	procd_open_instance ensure
 	procd_set_param command /usr/sbin/ha-supervisor ensure
 	procd_set_param stderr 1   # failures only; success prints nothing

@@ -1,0 +1,5 @@
+# ha-supervisor: add-ons reach the Supervisor as http://supervisor (port 80, 172.30.32.2). Port 80
+# on the router belongs to LuCI, so connections from the Docker bridge to that address are sent to
+# the supervisor API instead, which listens on the bridge address (default port 8124; keep this
+# in sync with the "port" option).
+iifname "docker0" ip daddr 172.30.32.2 tcp dport 80 counter redirect to :8124 comment "ha-supervisor"

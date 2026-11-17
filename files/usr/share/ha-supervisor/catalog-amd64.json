@@ -131,7 +131,7 @@
   },
   {
    "advanced": false,
-   "available": false,
+   "available": true,
    "build": false,
    "description": "Simple browser-based file editor for Home Assistant",
    "homeassistant": "0.91.1",
@@ -157,10 +157,7 @@
     "dir": "configurator"
    },
    "installed": false,
-   "unsupported": [
-    "homeassistant_api",
-    "ingress"
-   ],
+   "unsupported": [],
    "spec": {
     "version": "6.3.1",
     "slug": "configurator",
@@ -247,7 +244,6 @@
     "gpio",
     "udev",
     "kernel_modules",
-    "ingress",
     "device option (device passthrough)"
    ],
    "spec": {
@@ -908,8 +904,7 @@
    "installed": false,
    "unsupported": [
     "host_network",
-    "host_dbus",
-    "ingress"
+    "host_dbus"
    ],
    "spec": {
     "version": "9.3.0",
@@ -1319,7 +1314,7 @@
   },
   {
    "advanced": false,
-   "available": false,
+   "available": true,
    "build": false,
    "description": "Text-to-speech with Piper",
    "homeassistant": "2023.8.0.dev20230718",
@@ -1345,9 +1340,7 @@
     "dir": "piper"
    },
    "installed": false,
-   "unsupported": [
-    "ingress"
-   ],
+   "unsupported": [],
    "spec": {
     "version": "2.5.2",
     "slug": "piper",
@@ -1760,7 +1753,7 @@
   },
   {
    "advanced": false,
-   "available": false,
+   "available": true,
    "build": false,
    "description": "Fast and personalized local speech-to-text",
    "homeassistant": "2023.11.0",
@@ -1786,9 +1779,7 @@
     "dir": "speech_to_phrase"
    },
    "installed": false,
-   "unsupported": [
-    "homeassistant_api"
-   ],
+   "unsupported": [],
    "spec": {
     "version": "1.4.5",
     "slug": "speech-to-phrase",
@@ -1854,8 +1845,7 @@
    "unsupported": [
     "host_dbus",
     "uart",
-    "audio",
-    "ingress"
+    "audio"
    ],
    "spec": {
     "version": "10.6.0",
@@ -1941,8 +1931,7 @@
    },
    "installed": false,
    "unsupported": [
-    "audio",
-    "ingress"
+    "audio"
    ],
    "spec": {
     "version": "1.2.0",
@@ -2137,7 +2126,6 @@
    },
    "installed": false,
    "unsupported": [
-    "ingress",
     "device option (device passthrough)"
    ],
    "spec": {

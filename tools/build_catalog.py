@@ -30,11 +30,12 @@ REPO = {
 }
 
 # config.yaml keys that change how the container must be run and that we do not implement.
-# (backup_pre/post, apparmor, hassio_api, auth_api, watchdog... do not affect running it.)
+# (backup_pre/post, apparmor, hassio_api, auth_api, watchdog... do not affect running it.
+# ingress and homeassistant_api are implemented: see ingress.uc and the /core/api route.)
 UNSUPPORTED = [
     "host_network", "host_pid", "host_ipc", "host_uts", "host_dbus", "privileged", "full_access",
     "devices", "usb", "uart", "gpio", "udev", "audio", "video", "kernel_modules", "devicetree",
-    "docker_api", "homeassistant_api", "ingress", "tmpfs", "stdin",
+    "docker_api", "tmpfs", "stdin",
 ]
 
 

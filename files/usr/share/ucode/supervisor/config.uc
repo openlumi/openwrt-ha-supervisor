@@ -22,6 +22,7 @@ const DEFAULTS = {
 	registry_pass: '',
 	cache_ttl: '3600',
 	core_socket: '/var/run/ha-supervisor/core/core.sock',   // HA's Supervisor-only unix socket (host side)
+	supervisor_ip: '172.30.32.2',          // address add-ons see us at (many only accept requests from it); lives on lo
 	bridge_ip: '172.17.0.1',               // docker bridge gateway: add-ons reach the API here
 	catalog: '',                          // '' = /usr/share/ha-supervisor/catalog-<arch>.json (StoreInfo JSON)
 	devices: [],                          // list of /dev/... passthrough

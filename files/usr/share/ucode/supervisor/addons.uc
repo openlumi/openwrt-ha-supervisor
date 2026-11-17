@@ -86,7 +86,7 @@ export function by_token(tok) {
 	return null;
 };
 
-function rand_hex(bytes) {
+export function rand_hex(bytes) {
 	let p = popen(`head -c ${bytes} /dev/urandom | hexdump -v -e '/1 "%02x"'`, 'r');
 	let t = p ? trim(p.read('all')) : '';
 	if (p) p.close();
@@ -157,7 +157,7 @@ function container_spec(cfg, slug, entry, spec) {
 		HostConfig: {
 			NetworkMode: 'bridge',
 			// nginx-based add-ons resolve "supervisor" at start-up
-			ExtraHosts: [`supervisor:${cfg.bridge_ip}`],
+			ExtraHosts: [`supervisor:${cfg.supervisor_ip}`],
 			Binds: binds,
 			PortBindings: bindings,
 			RestartPolicy: { Name: entry.boot == 'manual' ? 'no' : 'unless-stopped' }
@@ -206,7 +206,9 @@ export function install(slug, job) {
 
 	step('creating', 70);
 	let entry = { version: tag, token, boot: (spec.boot == 'manual' || spec.boot == 'manual_only') ? 'manual' : 'auto',
-	              options: copy(spec.options ?? {}), image };
+	              options: copy(spec.options ?? {}), image,
+	              ingress_token: spec.ingress ? rand_hex(16) : null,
+	              ingress_panel: false };      // "Show in sidebar" is off until the user turns it on
 	write_options(slug, entry.options);
 	let r = docker.create(cname(slug), container_spec(cfg, slug, entry, spec));
 	if (!r.ok) return fail('create failed: ' + r.error);
@@ -222,6 +224,8 @@ export function install(slug, job) {
 		write_state(st);
 		return fail('start failed');
 	}
+	if (spec.ingress)
+		system(`/usr/sbin/ha-supervisor panel-push ${slug} >/dev/null 2>&1 &`);
 	if (job) jobs.update(job, { done: true, progress: 100, stage: 'done' });
 	return { ok: true, version: tag };
 };
@@ -232,7 +236,8 @@ export function uninstall(slug) {
 	docker.stop(cname(slug));
 	docker.remove(cname(slug));
 	delete st.addons[slug];
-	write_state(st);          // add-on data is kept in /etc/ha-supervisor/addons/<slug>/data
+	write_state(st);
+	system(`/usr/sbin/ha-supervisor panel-push ${slug} >/dev/null 2>&1 &`);   // data stays in /etc/ha-supervisor/addons/<slug>/data
 	return { ok: true };
 };
 
@@ -258,7 +263,44 @@ export function set_options(slug, options) {
 	return true;
 };
 
+// Add-on settings that are not its `options` (POST /addons/<slug>/options carries both).
+// Keys the UI sets: boot, ingress_panel, auto_update, watchdog, network.
+export function set_settings(slug, patch) {
+	let st = read_state();
+	let e = st.addons[slug];
+	if (!e) return false;
+	let panel_changed = patch.ingress_panel != null && !!patch.ingress_panel != !!e.ingress_panel;
+	for (let k in ['boot', 'ingress_panel', 'auto_update', 'watchdog', 'network'])
+		if (patch[k] != null)
+			e[k] = patch[k];
+	write_state(st);
+	if (panel_changed)
+		system(`/usr/sbin/ha-supervisor panel-push ${slug} >/dev/null 2>&1 &`);
+	return true;
+};
+
 export function options(slug) { return read_state().addons[slug]?.options; };
+
+// Token that identifies an add-on in /api/hassio_ingress/<token>/ (created on first use).
+export function ingress_token(slug) {
+	let st = read_state();
+	let e = st.addons[slug];
+	if (!e) return null;
+	if (!e.ingress_token) {
+		e.ingress_token = rand_hex(16);
+		write_state(st);
+	}
+	return e.ingress_token;
+};
+
+// Ask HA to re-read /ingress/panels for this add-on (it registers or removes the sidebar panel).
+export function panel_push(slug) {
+	let cfg = load();
+	let installed = !!read_state().addons[slug];
+	let r = http.request(`http://localhost/api/hassio_push/panel/${slug}`,
+		{ method: installed ? 'POST' : 'DELETE', unix: cfg.core_socket, timeout: 30 });
+	return http.ok(r);
+};
 
 // --- API views --------------------------------------------------------------------------
 
@@ -327,7 +369,7 @@ export function complete(cfg, slug) {
 	v.homeassistant_api = false;
 	v.host_network = !!spec.host_network;
 	v.host_pid = false;
-	v.ingress = false;
+	v.ingress = !!spec.ingress;
 	v.long_description = null;
 	v.rating = 5;
 	v.signed = false;
@@ -358,7 +400,15 @@ export function complete(cfg, slug) {
 	v.discovery = spec.discovery ?? [];
 	v.translations = {};
 	v.webui = spec.webui ?? null;
-	v.ingress_entry = null; v.ingress_url = null; v.ingress_port = null; v.ingress_panel = null;
+	if (spec.ingress) {
+		let tok = ingress_token(slug);
+		v.ingress_entry = `/api/hassio_ingress/${tok}`;
+		v.ingress_url = `/api/hassio_ingress/${tok}/`;
+		v.ingress_port = spec.ingress_port ?? 8099;
+		v.ingress_panel = !!e.ingress_panel;
+	} else {
+		v.ingress_entry = null; v.ingress_url = null; v.ingress_port = null; v.ingress_panel = null;
+	}
 	v.audio_input = null; v.audio_output = null;
 	v.auto_update = false;
 	v.ip_address = i?.NetworkSettings?.IPAddress || '172.17.0.2';

@@ -58,7 +58,7 @@
   },
   {
    "advanced": false,
-   "available": false,
+   "available": true,
    "build": false,
    "description": "Simple browser-based file editor for Home Assistant",
    "homeassistant": "0.91.1",
@@ -87,10 +87,7 @@
     "dir": "configurator"
    },
    "installed": false,
-   "unsupported": [
-    "homeassistant_api",
-    "ingress"
-   ],
+   "unsupported": [],
    "spec": {
     "version": "5.8.0",
     "slug": "configurator",
@@ -1388,8 +1385,7 @@
    "unsupported": [
     "host_dbus",
     "uart",
-    "audio",
-    "ingress"
+    "audio"
    ],
    "spec": {
     "version": "9.20.1",
@@ -1571,8 +1567,7 @@
    },
    "installed": false,
    "unsupported": [
-    "audio",
-    "ingress"
+    "audio"
    ],
    "spec": {
     "version": "0.3.1",

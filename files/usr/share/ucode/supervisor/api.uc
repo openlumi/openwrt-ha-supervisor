@@ -6,6 +6,8 @@ import * as jobs from 'supervisor.jobs';
 import * as cfgm from 'supervisor.config';
 import * as docker from 'supervisor.docker';
 import * as addons from 'supervisor.addons';
+import * as ingress from 'supervisor.ingress';
+import * as http from 'supervisor.http';
 import { popen, readfile, lsdir, readlink } from 'fs';
 import { rand } from 'math';
 import { connect } from 'ubus';
@@ -182,8 +184,7 @@ const STATIC = {
 	'/jobs/info': { ignore_conditions: [], jobs: [] },
 	'/available_updates': { available_updates: [] },
 	'/backups': { backups: [] },
-	'/backups/info': { backups: [], days_until_stale: 30 },
-	'/ingress/panels': { panels: {} }
+	'/backups/info': { backups: [], days_until_stale: 30 }
 };
 
 // POST endpoints that are accepted and ignored.
@@ -222,10 +223,14 @@ function install_addon(cfg, slug, body) {
 };
 
 // Add-on tokens may only use their own /addons/self subtree plus discovery/services/auth.
-function allowed_for_addon(path, slug) {
+function allowed_for_addon(cfg, path, slug) {
 	let own = '/addons/' + slug;
-	return path == own || index(path, own + '/') == 0 ||
-	       match(path, /^\/(discovery|services|auth)(\/|$)/) || path == '/supervisor/ping' || path == '/info';
+	if (path == own || index(path, own + '/') == 0 ||
+	    match(path, /^\/(discovery|services|auth)(\/|$)/) || path == '/supervisor/ping' || path == '/info')
+		return true;
+	// add-ons that declare homeassistant_api may talk to Home Assistant's REST API through us
+	return (path == '/core/api' || index(path, '/core/api/') == 0) &&
+	       !!addons.find(cfg, slug)?.spec?.homeassistant_api;
 };
 
 export function handle(method, path, body, headers, principal) {
@@ -235,7 +240,7 @@ export function handle(method, path, body, headers, principal) {
 	if (principal != 'supervisor') {
 		if (path == '/addons/self' || index(path, '/addons/self/') == 0)
 			path = '/addons/' + principal + substr(path, length('/addons/self'));
-		if (!allowed_for_addon(path, principal))
+		if (!allowed_for_addon(cfg, path, principal))
 			return err(403, 'forbidden for add-on tokens');
 	}
 
@@ -303,6 +308,28 @@ export function handle(method, path, body, headers, principal) {
 	if (method == 'POST' && (path in NOOP_POST))
 		return ok();
 
+	// --- ingress: sessions and panels (the proxy itself lives in ha-supervisor-http) ----------------
+	if (method == 'GET' && path == '/ingress/panels')
+		return ok({ panels: ingress.panels(cfg) });
+	if (method == 'POST' && path == '/ingress/session') {
+		let id = ingress.session_create();
+		return id ? ok({ session: id }) : err(500, 'cannot create a session');
+	}
+	if (method == 'POST' && path == '/ingress/validate_session')
+		return ingress.session_valid(body?.session) ? ok() : err(401, 'Invalid session');
+
+	// --- Home Assistant's REST API for add-ons that declare homeassistant_api ----------------------
+	// Passed through verbatim over HA's Supervisor-only socket, which is authenticated as the
+	// Supervisor user, so the add-on needs no HA token of its own.
+	let cm = match(path, /^\/core\/api(\/.*)?$/);
+	if (cm) {
+		let r = http.request('http://localhost/api' + (cm[1] ?? '/'),
+			{ method, unix: cfg.core_socket, body: type(body) == 'object' ? body : null, timeout: 60 });
+		if (!r.status)
+			return err(502, 'Home Assistant is not reachable');
+		return { code: r.status, text: r.body, ctype: 'application/json' };
+	}
+
 	// --- add-ons -------------------------------------------------------------------------
 	if (method == 'GET' && path == '/addons')
 		return ok({ addons: addons.installed_list(cfg) });
@@ -333,10 +360,18 @@ export function handle(method, path, body, headers, principal) {
 			return r.ok ? ok() : err(500, r.error);
 		}
 		case 'GET /options/config': return ok(addons.options(slug) ?? {});
-		case 'POST /options':
-			if (type(body?.options) != 'object')
-				return err(400, 'options object required');
-			return addons.set_options(slug, body.options) ? ok() : err(500, 'cannot set options');
+		case 'POST /options': {
+			// the UI sends `options` (the add-on's config) and/or its switches (boot, ingress_panel, ...)
+			if (body?.options != null && type(body.options) != 'object')
+				return err(400, 'options must be an object');
+			if (type(body) != 'object')
+				return err(400, 'body required');
+			if (!addons.set_settings(slug, body))
+				return err(500, 'cannot save settings');
+			if (body.options != null && !addons.set_options(slug, body.options))
+				return err(500, 'cannot set options');
+			return ok();
+		}
 		case 'GET /logs':           return { code: 200, text: addons.logs(slug, 200) };
 		case 'GET /stats':          return ok(stats(addons.stats(slug)));
 		}
