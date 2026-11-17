@@ -27,7 +27,7 @@ define Package/owrt-supervisor/install
 		$(1)/etc/config $(1)/etc/init.d $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ../../files/usr/sbin/owrt-supervisor ../../files/usr/sbin/owrt-supervisor-http $(1)/usr/sbin/
 	$(INSTALL_DATA) ../../files/usr/share/ucode/supervisor/*.uc $(1)/usr/share/ucode/supervisor/
-	$(INSTALL_DATA) ../../files/usr/share/owrt-supervisor/catalog.json $(1)/usr/share/owrt-supervisor/
+	$(INSTALL_DATA) ../../files/usr/share/owrt-supervisor/catalog-*.json $(1)/usr/share/owrt-supervisor/
 	$(INSTALL_DATA) ../../files/lib/upgrade/keep.d/owrt-supervisor $(1)/lib/upgrade/keep.d/
 	$(INSTALL_CONF) ../../files/etc/config/owrt-supervisor $(1)/etc/config/
 	$(INSTALL_BIN) ../../files/etc/init.d/owrt-supervisor $(1)/etc/init.d/

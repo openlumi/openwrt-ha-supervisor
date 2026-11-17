@@ -10,7 +10,6 @@ import { popen, readfile, lsdir, readlink } from 'fs';
 import { rand } from 'math';
 import { connect } from 'ubus';
 
-const ARCH = 'armv7';
 const LOCAL_IP = '127.0.0.1';
 
 function ok(data) { return { code: 200, body: { result: 'ok', data: data ?? {} } }; };
@@ -67,7 +66,7 @@ function root_info(cfg) {
 	return {
 		supervisor: cfgm.VERSION, homeassistant: core.info(cfg).version, hassos: null, docker: 'ok',
 		hostname: b.hostname, operating_system: os_name(), features: [],
-		machine: b.model, machine_id: null, arch: ARCH, state: 'running', supported_arch: [ARCH],
+		machine: b.model, machine_id: null, arch: cfg.arch, state: 'running', supported_arch: [cfg.arch],
 		supported: true, channel: channel(cfg), logging: 'info', timezone: cfg.timezone
 	};
 };
@@ -76,7 +75,7 @@ function core_info(cfg) {
 	let i = core.info(cfg);
 	return {
 		version: i.version, version_latest: i.version_latest, update_available: i.update_available,
-		machine: board().model, ip_address: LOCAL_IP, arch: ARCH, image: cfg.image,
+		machine: board().model, ip_address: LOCAL_IP, arch: cfg.arch, image: cfg.image,
 		boot: true, port: 8123, ssl: false, watchdog: true, audio_input: null, audio_output: null,
 		backups_exclude_database: false, duplicate_log_file: false,
 		// extras (ignored by the client if unknown)
@@ -106,7 +105,7 @@ function stats(s) {
 function supervisor_info(cfg) {
 	return {
 		version: cfgm.VERSION, version_latest: cfgm.VERSION, update_available: false,
-		channel: channel(cfg), arch: ARCH, supported: true, healthy: docker.ping(),
+		channel: channel(cfg), arch: cfg.arch, supported: true, healthy: docker.ping(),
 		ip_address: LOCAL_IP, timezone: cfg.timezone, logging: 'info', debug: false, debug_block: false,
 		diagnostics: false, auto_update: false, country: null, detect_blocking_io: false,
 		feature_flags: {}
@@ -307,8 +306,10 @@ export function handle(method, path, body, headers, principal) {
 			return err(404, `Add-on ${slug} does not exist`);
 		if (!act && method == 'GET')
 			return ok(addons.complete(cfg, slug));
-		if (act == 'availability' && method == 'GET')
-			return ok();
+		if (act == 'availability' && method == 'GET') {
+			let a = addons.find(cfg, slug);
+			return a.available == false ? err(400, addons.unavailable_reason(a)) : ok();
+		}
 		if (act == 'update')
 			return err(400, 'The add-on catalog is a frozen snapshot: updates are not available');
 		if (act == 'install' && method == 'POST') {

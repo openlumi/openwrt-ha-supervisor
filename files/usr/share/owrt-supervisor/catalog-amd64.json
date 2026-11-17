@@ -1,0 +1,2068 @@
+{
+ "addons": [
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Use Assist with local microphone",
+   "homeassistant": "2023.12.1",
+   "icon": false,
+   "logo": false,
+   "name": "Assist Microphone",
+   "repository": "core",
+   "slug": "core_assist_microphone",
+   "stage": "deprecated",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/addons/blob/master/assist_microphone",
+   "version_latest": "1.3.0",
+   "version": null,
+   "arch": [
+    "amd64",
+    "aarch64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "audio"
+   ],
+   "spec": {
+    "version": "1.3.0",
+    "stage": "deprecated",
+    "slug": "assist_microphone",
+    "name": "Assist Microphone",
+    "description": "Use Assist with local microphone",
+    "url": "https://github.com/home-assistant/addons/blob/master/assist_microphone",
+    "hassio_api": true,
+    "arch": [
+     "amd64",
+     "aarch64"
+    ],
+    "init": false,
+    "discovery": [
+     "wyoming"
+    ],
+    "map": [
+     "share:ro"
+    ],
+    "options": {
+     "awake_wav": "/usr/src/sounds/awake.wav",
+     "done_wav": "/usr/src/sounds/done.wav",
+     "timer_finished_wav": "/usr/src/sounds/timer_finished.wav",
+     "timer_repeat_count": 3,
+     "timer_repeat_delay": 0.75,
+     "sound_enabled": true,
+     "noise_suppression": 0,
+     "auto_gain": 0,
+     "mic_volume_multiplier": 1.0,
+     "sound_volume_multiplier": 1.0,
+     "debug_logging": false
+    },
+    "schema": {
+     "awake_wav": "str",
+     "done_wav": "str",
+     "timer_finished_wav": "str",
+     "timer_repeat_count": "int",
+     "timer_repeat_delay": "float",
+     "sound_enabled": "bool",
+     "noise_suppression": "int",
+     "auto_gain": "int",
+     "mic_volume_multiplier": "float",
+     "sound_volume_multiplier": "float",
+     "debug_logging": "bool"
+    },
+    "audio": true,
+    "homeassistant": "2023.12.1",
+    "image": "homeassistant/{arch}-addon-assist_microphone"
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Scan for HDMI CEC devices",
+   "homeassistant": null,
+   "icon": false,
+   "logo": false,
+   "name": "CEC Scanner",
+   "repository": "core",
+   "slug": "core_cec_scan",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/app-cec-scan",
+   "version_latest": "4.1.0",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "video"
+   ],
+   "spec": {
+    "version": "4.1.0",
+    "slug": "cec_scan",
+    "name": "CEC Scanner",
+    "url": "https://github.com/home-assistant/app-cec-scan",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "boot": "manual",
+    "description": "Scan for HDMI CEC devices",
+    "image": "ghcr.io/home-assistant/app-cec-scan",
+    "startup": "once",
+    "video": true,
+    "init": false
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Simple browser-based file editor for Home Assistant",
+   "homeassistant": "0.91.1",
+   "icon": false,
+   "logo": false,
+   "name": "File editor",
+   "repository": "core",
+   "slug": "core_configurator",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/app-configurator",
+   "version_latest": "6.3.1",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "homeassistant_api",
+    "ingress"
+   ],
+   "spec": {
+    "version": "6.3.1",
+    "slug": "configurator",
+    "name": "File editor",
+    "description": "Simple browser-based file editor for Home Assistant",
+    "url": "https://github.com/home-assistant/app-configurator",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "homeassistant": "0.91.1",
+    "homeassistant_api": true,
+    "image": "ghcr.io/home-assistant/app-configurator",
+    "ingress": true,
+    "init": false,
+    "map": [
+     "all_app_configs:rw",
+     "backup:rw",
+     "homeassistant_config:rw",
+     "media:rw",
+     "share:rw",
+     "ssl:rw"
+    ],
+    "options": {
+     "dirsfirst": false,
+     "enforce_basepath": true,
+     "git": true,
+     "ignore_pattern": [
+      "__pycache__",
+      ".cloud",
+      ".storage",
+      "deps"
+     ],
+     "log_level": "info",
+     "ssh_keys": []
+    },
+    "panel_icon": "mdi:wrench",
+    "schema": {
+     "dirsfirst": "bool",
+     "enforce_basepath": "bool",
+     "git": "bool",
+     "ignore_pattern": [
+      "str"
+     ],
+     "log_level": "list(debug|info|warning|error|critical)?",
+     "ssh_keys": [
+      "str"
+     ]
+    }
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Control a Zigbee network with ConBee or RaspBee by dresden elektronik",
+   "homeassistant": "0.91.2",
+   "icon": false,
+   "logo": false,
+   "name": "deCONZ",
+   "repository": "core",
+   "slug": "core_deconz",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/addons/tree/master/deconz",
+   "version_latest": "8.8.0",
+   "version": null,
+   "arch": [
+    "amd64",
+    "aarch64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "privileged",
+    "devices",
+    "usb",
+    "gpio",
+    "udev",
+    "kernel_modules",
+    "ingress",
+    "device option (device passthrough)"
+   ],
+   "spec": {
+    "version": "8.8.0",
+    "slug": "deconz",
+    "name": "deCONZ",
+    "description": "Control a Zigbee network with ConBee or RaspBee by dresden elektronik",
+    "url": "https://github.com/home-assistant/addons/tree/master/deconz",
+    "apparmor": false,
+    "arch": [
+     "amd64",
+     "aarch64"
+    ],
+    "backup_exclude": [
+     "*/otau"
+    ],
+    "devices": [
+     "/dev/mem"
+    ],
+    "discovery": [
+     "deconz"
+    ],
+    "gpio": true,
+    "homeassistant": "0.91.2",
+    "image": "homeassistant/{arch}-addon-deconz",
+    "ingress": true,
+    "ingress_entry": "ingress.html",
+    "init": false,
+    "kernel_modules": true,
+    "options": {
+     "device": null,
+     "ota_update": {
+      "bosch": false,
+      "ikea": false,
+      "ledvance": false
+     }
+    },
+    "panel_icon": "mdi:zigbee",
+    "ports": {
+     "40850/tcp": null,
+     "5900/tcp": null,
+     "8081/tcp": null
+    },
+    "privileged": [
+     "SYS_RAWIO"
+    ],
+    "schema": {
+     "device": "device(subsystem=tty)",
+     "ota_update": {
+      "bosch": "bool",
+      "ikea": "bool",
+      "ledvance": "bool"
+     },
+     "dbg_info": "int(0,2)?",
+     "dbg_aps": "int(0,2)?",
+     "dbg_zcl": "int(0,1)?",
+     "dbg_zdp": "int(0,1)?",
+     "dbg_ddf": "int(0,1)?",
+     "dbg_dev": "int(0,1)?",
+     "dbg_ota": "int(0,1)?",
+     "dbg_error": "int(0,2)?",
+     "dbg_http": "int(0,1)?"
+    },
+    "startup": "services",
+    "udev": true,
+    "usb": true
+   }
+  },
+  {
+   "advanced": false,
+   "available": true,
+   "build": false,
+   "description": "A simple DNS server",
+   "homeassistant": null,
+   "icon": false,
+   "logo": false,
+   "name": "Dnsmasq",
+   "repository": "core",
+   "slug": "core_dnsmasq",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/app-dnsmasq",
+   "version_latest": "2.2.0",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [],
+   "spec": {
+    "version": "2.2.0",
+    "slug": "dnsmasq",
+    "name": "Dnsmasq",
+    "description": "A simple DNS server",
+    "url": "https://github.com/home-assistant/app-dnsmasq",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "image": "ghcr.io/home-assistant/app-dnsmasq",
+    "init": false,
+    "options": {
+     "defaults": [
+      "8.8.8.8",
+      "8.8.4.4"
+     ],
+     "forwards": [],
+     "hosts": [],
+     "services": [],
+     "cnames": [],
+     "txts": [],
+     "ptrs": [],
+     "log_queries": false,
+     "cache_size": 150
+    },
+    "ports": {
+     "53/tcp": 53,
+     "53/udp": 53
+    },
+    "schema": {
+     "defaults": [
+      "str"
+     ],
+     "forwards": [
+      {
+       "domain": "str",
+       "server": "str"
+      }
+     ],
+     "hosts": [
+      {
+       "host": "str",
+       "ip": "str"
+      }
+     ],
+     "services": [
+      {
+       "host": "str",
+       "port": "str",
+       "priority": "int",
+       "srv": "str",
+       "weight": "int"
+      }
+     ],
+     "cnames": [
+      {
+       "name": "str",
+       "target": "str"
+      }
+     ],
+     "txts": [
+      {
+       "name": "str",
+       "value": "str"
+      }
+     ],
+     "ptrs": [
+      {
+       "ip": "str",
+       "name": "str"
+      }
+     ],
+     "log_queries": "bool",
+     "cache_size": "int"
+    },
+    "startup": "system"
+   }
+  },
+  {
+   "advanced": false,
+   "available": true,
+   "build": false,
+   "description": "Free Dynamic DNS (DynDNS or DDNS) service with Let's Encrypt support",
+   "homeassistant": null,
+   "icon": false,
+   "logo": false,
+   "name": "Duck DNS",
+   "repository": "core",
+   "slug": "core_duckdns",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/addons/tree/master/duckdns",
+   "version_latest": "2.0.1",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [],
+   "spec": {
+    "version": "2.0.1",
+    "slug": "duckdns",
+    "name": "Duck DNS",
+    "description": "Free Dynamic DNS (DynDNS or DDNS) service with Let's Encrypt support",
+    "url": "https://github.com/home-assistant/addons/tree/master/duckdns",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "hassio_api": true,
+    "init": false,
+    "image": "homeassistant/{arch}-addon-duckdns",
+    "map": [
+     "ssl:rw"
+    ],
+    "options": {
+     "domains": [
+      null
+     ],
+     "token": null,
+     "aliases": [],
+     "lets_encrypt": {
+      "accept_terms": false,
+      "algo": "secp384r1",
+      "certfile": "fullchain.pem",
+      "keyfile": "privkey.pem"
+     },
+     "seconds": 300
+    },
+    "schema": {
+     "domains": [
+      "match(.+\\.duckdns\\.org)"
+     ],
+     "token": "str",
+     "aliases": [
+      {
+       "alias": "str",
+       "domain": "str"
+      }
+     ],
+     "lets_encrypt": {
+      "accept_terms": "bool",
+      "algo": "list(rsa|prime256v1|secp384r1)",
+      "certfile": "str",
+      "keyfile": "str"
+     },
+     "seconds": "int",
+     "ipv4": "str?",
+     "ipv6": "str?"
+    },
+    "startup": "services"
+   }
+  },
+  {
+   "advanced": false,
+   "available": true,
+   "build": false,
+   "description": "Simple git pull to update the local configuration",
+   "homeassistant": null,
+   "icon": false,
+   "logo": false,
+   "name": "Git pull",
+   "repository": "core",
+   "slug": "core_git_pull",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/app-git-pull",
+   "version_latest": "9.1.1",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [],
+   "spec": {
+    "version": "9.1.1",
+    "slug": "git_pull",
+    "name": "Git pull",
+    "description": "Simple git pull to update the local configuration",
+    "url": "https://github.com/home-assistant/app-git-pull",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "boot": "manual",
+    "hassio_api": true,
+    "hassio_role": "homeassistant",
+    "image": "ghcr.io/home-assistant/app-git-pull",
+    "init": false,
+    "map": [
+     "config:rw"
+    ],
+    "options": {
+     "repository": null,
+     "git_branch": "master",
+     "git_remote": "origin",
+     "auto_restart": false,
+     "restart_ignore": [
+      "ui-lovelace.yaml",
+      ".gitignore"
+     ],
+     "git_command": "pull",
+     "git_prune": false,
+     "deployment_key": [],
+     "deployment_user": "",
+     "deployment_password": "",
+     "deployment_key_protocol": "rsa",
+     "repeat": {
+      "active": false,
+      "interval": 300
+     }
+    },
+    "schema": {
+     "repository": "str",
+     "git_branch": "str",
+     "git_remote": "str",
+     "auto_restart": "bool",
+     "restart_ignore": [
+      "str"
+     ],
+     "git_command": "list(pull|reset)",
+     "git_prune": "bool",
+     "deployment_key": [
+      "password"
+     ],
+     "deployment_user": "str",
+     "deployment_password": "password",
+     "deployment_key_protocol": "match(rsa|ecdsa|ed25519)",
+     "repeat": {
+      "active": "bool",
+      "interval": "int"
+     }
+    },
+    "startup": "services"
+   }
+  },
+  {
+   "advanced": false,
+   "available": true,
+   "build": false,
+   "description": "Manage certificate from Let's Encrypt",
+   "homeassistant": null,
+   "icon": false,
+   "logo": false,
+   "name": "Let's Encrypt",
+   "repository": "core",
+   "slug": "core_letsencrypt",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/addons/tree/master/letsencrypt",
+   "version_latest": "6.5.0",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [],
+   "spec": {
+    "version": "6.5.0",
+    "breaking_versions": [
+     "5.3.0",
+     "6.0.0"
+    ],
+    "slug": "letsencrypt",
+    "name": "Let's Encrypt",
+    "description": "Manage certificate from Let's Encrypt",
+    "url": "https://github.com/home-assistant/addons/tree/master/letsencrypt",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "boot": "manual",
+    "image": "homeassistant/{arch}-addon-letsencrypt",
+    "init": false,
+    "map": [
+     "ssl:rw",
+     "share"
+    ],
+    "options": {
+     "keyfile": "privkey.pem",
+     "certfile": "fullchain.pem",
+     "challenge": "http",
+     "dns": {}
+    },
+    "ports": {
+     "80/tcp": 80
+    },
+    "schema": {
+     "domains": [
+      "str"
+     ],
+     "email": "email",
+     "keyfile": "str",
+     "certfile": "str",
+     "challenge": "list(dns|http)",
+     "dns": {
+      "aws_access_key_id": "str?",
+      "aws_region": "str?",
+      "aws_secret_access_key": "str?",
+      "azure_config": "str?",
+      "bunny_api_key": "str?",
+      "cloudflare_api_key": "str?",
+      "cloudflare_api_token": "str?",
+      "cloudflare_email": "email?",
+      "cloudns_auth_id": "int?",
+      "cloudns_auth_password": "str?",
+      "cloudns_sub_auth_id": "int?",
+      "cloudns_sub_auth_user": "str?",
+      "desec_token": "str?",
+      "digitalocean_token": "str?",
+      "directadmin_password": "str?",
+      "directadmin_url": "str?",
+      "directadmin_username": "str?",
+      "dns_multi_nameservers": "str?",
+      "dnsimple_token": "str?",
+      "dnsmadeeasy_api_key": "str?",
+      "dnsmadeeasy_secret_key": "str?",
+      "domainoffensive_token": "str?",
+      "dreamhost_api_key": "str?",
+      "dreamhost_baseurl": "str?",
+      "duckdns_token": "str?",
+      "dynu_auth_token": "str?",
+      "easydns_endpoint": "str?",
+      "easydns_key": "str?",
+      "easydns_token": "str?",
+      "eurodns_apiKey": "str?",
+      "eurodns_applicationId": "str?",
+      "gandi_api_key": "str?",
+      "gandi_sharing_id": "str?",
+      "gandi_token": "str?",
+      "gehirn_api_secret": "str?",
+      "gehirn_api_token": "str?",
+      "godaddy_key": "str?",
+      "godaddy_secret": "str?",
+      "google_creds": "str?",
+      "he_pass": "str?",
+      "he_user": "str?",
+      "hetzner_api_token": "str?",
+      "httpreq_endpoint": "url?",
+      "httpreq_password": "str?",
+      "httpreq_username": "str?",
+      "infomaniak_api_token": "str?",
+      "inwx_password": "str?",
+      "inwx_shared_secret": "str?",
+      "inwx_username": "str?",
+      "ionos_endpoint": "str?",
+      "ionos_prefix": "str?",
+      "ionos_secret": "str?",
+      "joker_domain": "str?",
+      "joker_password": "str?",
+      "joker_username": "str?",
+      "lego_env": [
+       "str?"
+      ],
+      "lego_provider": "str?",
+      "linode_key": "str?",
+      "linode_version": "str?",
+      "loopia_password": "str?",
+      "loopia_user": "str?",
+      "luadns_email": "email?",
+      "luadns_token": "str?",
+      "mijn_host_api_key": "str?",
+      "namecheap_api_key": "str?",
+      "namecheap_username": "str?",
+      "netcup_api_key": "str?",
+      "netcup_api_password": "str?",
+      "netcup_customer_id": "str?",
+      "njalla_token": "str?",
+      "noris_token": "str?",
+      "nsone_api_key": "str?",
+      "ovh_application_key": "str?",
+      "ovh_application_secret": "str?",
+      "ovh_consumer_key": "str?",
+      "ovh_endpoint": "str?",
+      "plesk_api_url": "str?",
+      "plesk_password": "str?",
+      "plesk_username": "str?",
+      "porkbun_key": "str?",
+      "porkbun_secret": "str?",
+      "propagation_seconds": "int(60,3600)?",
+      "provider": "list(dns-azure|dns-bunny|dns-cloudflare|dns-cloudns|dns-desec|dns-digitalocean|dns-directadmin|dns-dnsimple|dns-dnsmadeeasy|dns-domainoffensive|dns-dreamhost|dns-duckdns|dns-dynu|dns-easydns|dns-eurodns|dns-gandi|dns-gehirn|dns-godaddy|dns-google|dns-he|dns-hetzner|dns-httpreq|dns-infomaniak|dns-inwx|dns-ionos|dns-joker|dns-lego|dns-linode|dns-loopia|dns-luadns|dns-mijn-host|dns-namecheap|dns-netcup|dns-njalla|dns-noris|dns-nsone|dns-ovh|dns-plesk|dns-porkbun|dns-rfc2136|dns-route53|dns-sakuracloud|dns-simply|dns-transip|dns-websupport)?",
+      "rfc2136_algorithm": "str?",
+      "rfc2136_name": "str?",
+      "rfc2136_port": "str?",
+      "rfc2136_secret": "str?",
+      "rfc2136_server": "str?",
+      "rfc2136_sign_query": "bool?",
+      "sakuracloud_api_secret": "str?",
+      "sakuracloud_api_token": "str?",
+      "simply_account_name": "str?",
+      "simply_api_key": "str?",
+      "transip_api_key": "str?",
+      "transip_global_key": "list(yes|no)?",
+      "transip_username": "str?",
+      "websupport_identifier": "str?",
+      "websupport_secret_key": "str?"
+     },
+     "key_type": "list(ecdsa|rsa)?",
+     "elliptic_curve": "list(secp256r1|secp384r1)?",
+     "acme_server": "url?",
+     "acme_root_ca_cert": "str?",
+     "verbose": "bool?",
+     "dry_run": "bool?",
+     "test_cert": "bool?",
+     "force_renew": "bool?",
+     "eab_kid": "str?",
+     "eab_hmac_key": "str?"
+    },
+    "startup": "once"
+   }
+  },
+  {
+   "advanced": false,
+   "available": true,
+   "build": false,
+   "description": "A SQL database server",
+   "homeassistant": null,
+   "icon": false,
+   "logo": false,
+   "name": "MariaDB",
+   "repository": "core",
+   "slug": "core_mariadb",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/app-mariadb",
+   "version_latest": "4.0.0",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [],
+   "spec": {
+    "version": "4.0.0",
+    "breaking_versions": [
+     "3.0.0",
+     "4.0.0"
+    ],
+    "slug": "mariadb",
+    "name": "MariaDB",
+    "description": "A SQL database server",
+    "url": "https://github.com/home-assistant/app-mariadb",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "backup_post": "unlock-tables-for-backup",
+    "backup_pre": "lock-tables-for-backup",
+    "image": "ghcr.io/home-assistant/app-mariadb",
+    "init": false,
+    "options": {
+     "databases": [
+      "homeassistant"
+     ],
+     "logins": [
+      {
+       "password": null,
+       "username": "homeassistant"
+      }
+     ],
+     "rights": [
+      {
+       "database": "homeassistant",
+       "username": "homeassistant"
+      }
+     ]
+    },
+    "ports": {
+     "3306/tcp": null
+    },
+    "schema": {
+     "databases": [
+      "match(^[\\w$-]{1,64}$)"
+     ],
+     "logins": [
+      {
+       "username": "match(^[\\w.@ -]{1,128}$)",
+       "password": "password"
+      }
+     ],
+     "rights": [
+      {
+       "database": "match(^[\\w$-]{1,64}$)",
+       "privileges": [
+        "list(ALTER|CREATE|CREATE ROUTINE|CREATE TEMPORARY TABLES|CREATE VIEW|DELETE|DELETE HISTORY|DROP|EVENT|GRANT OPTION|INDEX|INSERT|LOCK TABLES|SELECT|SHOW VIEW|TRIGGER|UPDATE)?"
+       ],
+       "username": "match(^[\\w.@ -]{1,128}$)"
+      }
+     ],
+     "mariadb_server_args": [
+      "str?"
+     ]
+    },
+    "services": [
+     "mysql:provide"
+    ],
+    "startup": "system",
+    "timeout": 300
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Matter WebSocket Server for Home Assistant Matter support.",
+   "homeassistant": "2024.6.0",
+   "icon": false,
+   "logo": false,
+   "name": "Matter Server",
+   "repository": "core",
+   "slug": "core_matter_server",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/app-matter-server",
+   "version_latest": "9.3.0",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "host_network",
+    "host_dbus",
+    "ingress"
+   ],
+   "spec": {
+    "version": "9.3.0",
+    "breaking_versions": [
+     "9.0.0"
+    ],
+    "slug": "matter_server",
+    "name": "Matter Server",
+    "description": "Matter WebSocket Server for Home Assistant Matter support.",
+    "url": "https://github.com/home-assistant/app-matter-server",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "discovery": [
+     "matter"
+    ],
+    "hassio_api": true,
+    "homeassistant": "2024.6.0",
+    "host_network": true,
+    "host_dbus": true,
+    "image": "ghcr.io/home-assistant/app-matter-server",
+    "ingress": true,
+    "ingress_port": 5580,
+    "panel_icon": "mdi:matter",
+    "init": false,
+    "map": [
+     {
+      "type": "app_config",
+      "read_only": false
+     }
+    ],
+    "options": {
+     "log_level": "info",
+     "beta": false,
+     "enable_test_net_dcl": false,
+     "time_sync": "auto"
+    },
+    "schema": {
+     "log_level": "list(debug|info|notice|warn|error|fatal|verbose|warning|critical)",
+     "beta": "bool?",
+     "enable_test_net_dcl": "bool?",
+     "time_sync": "list(auto|on|off)",
+     "default_fabric_label": "match(^.{1,32}$)?",
+     "ble_proxy": "bool?",
+     "bluetooth_adapter_id": "int?",
+     "matter_server_args": [
+      "str?"
+     ],
+     "matter_server_env_vars": [
+      "match(^[A-Za-z_][A-Za-z0-9_]*=.*$)?"
+     ],
+     "matter_server_version": "str?"
+    },
+    "ports": {
+     "5580/tcp": null
+    },
+    "startup": "services"
+   }
+  },
+  {
+   "advanced": false,
+   "available": true,
+   "build": false,
+   "description": "An Open Source MQTT broker",
+   "homeassistant": null,
+   "icon": false,
+   "logo": false,
+   "name": "Mosquitto broker",
+   "repository": "core",
+   "slug": "core_mosquitto",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/app-mosquitto",
+   "version_latest": "7.1.3",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [],
+   "spec": {
+    "version": "7.1.3",
+    "slug": "mosquitto",
+    "name": "Mosquitto broker",
+    "description": "An Open Source MQTT broker",
+    "url": "https://github.com/home-assistant/app-mosquitto",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "auth_api": true,
+    "discovery": [
+     "mqtt"
+    ],
+    "image": "ghcr.io/home-assistant/app-mosquitto",
+    "map": [
+     "ssl",
+     "share"
+    ],
+    "options": {
+     "logins": [],
+     "log_dest": [],
+     "log_type": [],
+     "require_certificate": false,
+     "certfile": "fullchain.pem",
+     "keyfile": "privkey.pem",
+     "customize": {
+      "active": false,
+      "folder": "mosquitto"
+     }
+    },
+    "ports": {
+     "1883/tcp": 1883,
+     "1884/tcp": 1884,
+     "8883/tcp": 8883,
+     "8884/tcp": 8884
+    },
+    "schema": {
+     "logins": [
+      {
+       "username": "str",
+       "password": "password",
+       "password_pre_hashed": "bool?"
+      }
+     ],
+     "log_dest": [
+      "list(none|stdout|stderr|topic)?"
+     ],
+     "log_type": [
+      "list(none|debug|error|warning|notice|information|subscribe|unsubscribe|websockets|all)?"
+     ],
+     "require_certificate": "bool",
+     "certfile": "str",
+     "cafile": "str?",
+     "keyfile": "str",
+     "customize": {
+      "active": "bool",
+      "folder": "str"
+     },
+     "debug": "bool?"
+    },
+    "services": [
+     "mqtt:provide"
+    ],
+    "startup": "system",
+    "init": false
+   }
+  },
+  {
+   "advanced": false,
+   "available": true,
+   "build": false,
+   "description": "An SSL/TLS proxy",
+   "homeassistant": null,
+   "icon": false,
+   "logo": false,
+   "name": "NGINX Home Assistant SSL proxy",
+   "repository": "core",
+   "slug": "core_nginx_proxy",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/addons/tree/master/nginx_proxy",
+   "version_latest": "4.5.1",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [],
+   "spec": {
+    "version": "4.5.1",
+    "hassio_api": true,
+    "slug": "nginx_proxy",
+    "name": "NGINX Home Assistant SSL proxy",
+    "description": "An SSL/TLS proxy",
+    "url": "https://github.com/home-assistant/addons/tree/master/nginx_proxy",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "image": "homeassistant/{arch}-addon-nginx_proxy",
+    "init": false,
+    "map": [
+     "ssl",
+     "share"
+    ],
+    "options": {
+     "domain": null,
+     "hsts": "max-age=31536000; includeSubDomains",
+     "certfile": "fullchain.pem",
+     "keyfile": "privkey.pem",
+     "cloudflare": false,
+     "use_ssl_backend": false,
+     "client_max_body_size_megabytes": 1,
+     "customize": {
+      "active": false,
+      "default": "nginx_proxy_default*.conf",
+      "servers": "nginx_proxy/*.conf"
+     },
+     "real_ip_from": []
+    },
+    "ports": {
+     "443/tcp": 443,
+     "443/udp": null,
+     "80/tcp": null
+    },
+    "schema": {
+     "domain": "str",
+     "hsts": "str",
+     "certfile": "str",
+     "keyfile": "str",
+     "cloudflare": "bool",
+     "use_ssl_backend": "bool",
+     "client_max_body_size_megabytes": "int(0,)",
+     "customize": {
+      "active": "bool",
+      "default": "str",
+      "servers": "str"
+     },
+     "real_ip_from": [
+      "str"
+     ]
+    }
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "OpenThread Border Router app",
+   "homeassistant": "2025.7.0",
+   "icon": false,
+   "logo": false,
+   "name": "OpenThread Border Router",
+   "repository": "core",
+   "slug": "core_openthread_border_router",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/app-openthread-border-router",
+   "version_latest": "3.4.0",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "host_network",
+    "host_uts",
+    "privileged",
+    "devices",
+    "gpio",
+    "device option (device passthrough)"
+   ],
+   "spec": {
+    "version": "3.4.0",
+    "breaking_versions": [
+     "3.0.0"
+    ],
+    "slug": "openthread_border_router",
+    "name": "OpenThread Border Router",
+    "description": "OpenThread Border Router app",
+    "url": "https://github.com/home-assistant/app-openthread-border-router",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "homeassistant": "2025.7.0",
+    "gpio": true,
+    "hassio_api": true,
+    "discovery": [
+     "otbr"
+    ],
+    "host_network": true,
+    "host_uts": true,
+    "privileged": [
+     "IPC_LOCK",
+     "NET_ADMIN",
+     "NET_RAW"
+    ],
+    "devices": [
+     "/dev/net/tun"
+    ],
+    "image": "ghcr.io/home-assistant/app-openthread-border-router",
+    "init": false,
+    "log_format": "timestamp",
+    "options": {
+     "device": null,
+     "baudrate": "460800",
+     "flow_control": true,
+     "otbr_log_level": "notice",
+     "firewall": true,
+     "nat64": false,
+     "beta": false
+    },
+    "ports": {
+     "8080/tcp": null,
+     "8081/tcp": null
+    },
+    "ports_description": {
+     "8080/tcp": "OpenThread Web port",
+     "8081/tcp": "OpenThread REST API port"
+    },
+    "schema": {
+     "device": "device(subsystem=tty)",
+     "baudrate": "list(57600|115200|230400|460800|921600|1000000)",
+     "flow_control": "bool",
+     "backbone_interface": "str?",
+     "network_device": "str?",
+     "otbr_log_level": "list(debug|info|notice|warning|error|critical|alert|emergency)",
+     "firewall": "bool",
+     "nat64": "bool",
+     "beta": "bool?"
+    },
+    "startup": "services"
+   }
+  },
+  {
+   "advanced": false,
+   "available": true,
+   "build": false,
+   "description": "openWakeWord using the Wyoming protocol",
+   "homeassistant": "2023.9.0.dev20230809",
+   "icon": false,
+   "logo": false,
+   "name": "openWakeWord",
+   "repository": "core",
+   "slug": "core_openwakeword",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/addons/blob/master/openwakeword",
+   "version_latest": "2.1.1",
+   "version": null,
+   "arch": [
+    "amd64",
+    "aarch64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [],
+   "spec": {
+    "version": "2.1.1",
+    "slug": "openwakeword",
+    "name": "openWakeWord",
+    "description": "openWakeWord using the Wyoming protocol",
+    "url": "https://github.com/home-assistant/addons/blob/master/openwakeword",
+    "arch": [
+     "amd64",
+     "aarch64"
+    ],
+    "init": false,
+    "discovery": [
+     "wyoming"
+    ],
+    "backup_exclude": [
+     "*.tflite"
+    ],
+    "map": [
+     "share:ro"
+    ],
+    "options": {
+     "threshold": 0.5,
+     "trigger_level": 1,
+     "debug_logging": false
+    },
+    "schema": {
+     "threshold": "float",
+     "trigger_level": "int",
+     "debug_logging": "bool"
+    },
+    "ports": {
+     "10400/tcp": null
+    },
+    "homeassistant": "2023.9.0.dev20230809",
+    "image": "homeassistant/{arch}-addon-openwakeword"
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Text-to-speech with Piper",
+   "homeassistant": "2023.8.0.dev20230718",
+   "icon": false,
+   "logo": false,
+   "name": "Piper",
+   "repository": "core",
+   "slug": "core_piper",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/addons/blob/master/piper",
+   "version_latest": "2.5.2",
+   "version": null,
+   "arch": [
+    "amd64",
+    "aarch64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "ingress"
+   ],
+   "spec": {
+    "version": "2.5.2",
+    "slug": "piper",
+    "name": "Piper",
+    "description": "Text-to-speech with Piper",
+    "url": "https://github.com/home-assistant/addons/blob/master/piper",
+    "arch": [
+     "amd64",
+     "aarch64"
+    ],
+    "init": false,
+    "discovery": [
+     "wyoming"
+    ],
+    "backup_exclude": [
+     "*.onnx.data",
+     "*/hub",
+     "*/uv-cache"
+    ],
+    "map": [
+     "share"
+    ],
+    "ingress": true,
+    "ingress_port": 8099,
+    "panel_icon": "mdi:account-voice",
+    "panel_title": "Piper voices",
+    "options": {
+     "backend": "piper",
+     "voice": "en_US-lessac-medium",
+     "speaker": 0,
+     "length_scale": 1.0,
+     "noise_scale": 0.667,
+     "noise_w": 0.333,
+     "sentence_silence": 0.0,
+     "omnivoice_steps": 32,
+     "enable_japanese": false,
+     "enable_thai": false,
+     "debug_logging": false,
+     "update_voices": true
+    },
+    "schema": {
+     "backend": "list(piper|omnivoice)",
+     "voice": "list(ar_JO-kareem-low|ar_JO-kareem-medium|bg_BG-dimitar-medium|bn_BD-google-medium|ca_ES-upc_ona-medium|ca_ES-upc_ona-x_low|ca_ES-upc_pau-x_low|ca-upc_ona-x-low|ca-upc_pau-x-low|cs_CZ-jirka-low|cs_CZ-jirka-medium|cs_CZ-kasandra-medium|cy_GB-bu_tts-medium|cy_GB-gwryw_gogleddol-medium|da_DK-talesyntese-medium|da-nst_talesyntese-medium|de_DE-eva_k-x_low|de_DE-karlsson-low|de_DE-kerstin-low|de_DE-mls-medium|de_DE-pavoque-low|de_DE-ramona-low|de_DE-thorsten_emotional-medium|de_DE-thorsten-high|de_DE-thorsten-low|de_DE-thorsten-medium|de-eva_k-x-low|de-karlsson-low|de-kerstin-low|de-pavoque-low|de-ramona-low|de-thorsten-low|el_GR-joy-medium|el-gr-rapunzelina-low|el_GR-rapunzelina-low|el_GR-rapunzelina-medium|en-gb-alan-low|en_GB-alan-low|en_GB-alan-medium|en_GB-alba-medium|en_GB-aru-medium|en_GB-cori-high|en_GB-cori-medium|en_GB-jenny_dioco-medium|en_GB-northern_english_male-medium|en_GB-semaine-medium|en-gb-southern_english_female-low|en_GB-southern_english_female-low|en_GB-vctk-medium|en-us-amy-low|en_US-amy-low|en_US-amy-medium|en_US-arctic-medium|en_US-bryce-medium|en-us-danny-low|en_US-danny-low|en_US-hfc_female-medium|en_US-hfc_male-medium|en_US-joe-medium|en_US-john-medium|en-us-kathleen-low|en_US-kathleen-low|en_US-kristin-medium|en_US-kusal-medium|en_US-l2arctic-medium|en_US-lessac-high|en-us-lessac-low|en_US-lessac-low|en-us-lessac-medium|en_US-lessac-medium|en-us-libritts-high|en_US-libritts-high|en_US-libritts_r-medium|en_US-ljspeech-high|en_US-ljspeech-medium|en_US-mike-medium|en_US-norman-medium|en_US-reza_ibrahim-medium|en-us-ryan-high|en_US-ryan-high|en-us-ryan-low|en_US-ryan-low|en-us-ryan-medium|en_US-ryan-medium|en_US-sam-medium|es_AR-daniela-high|es-carlfm-x-low|es_ES-carlfm-x_low|es_ES-davefx-medium|es_ES-mls_10246-low|es_ES-mls_9972-low|es_ES-sharvard-medium|es-mls_10246-low|es-mls_9972-low|es_MX-ald-medium|es_MX-ald-x_low|es_MX-claude-high|et_EE-news-medium|eu_ES-antton-medium|eu_ES-maider-medium|fa_IR-amir-medium|fa_IR-ganji_adabi-medium|fa_IR-ganji-medium|fa_IR-gyro-medium|fa_IR-reza_ibrahim-medium|fi_FI-harri-low|fi_FI-harri-medium|fi-harri-low|fr_FR-gilles-low|fr_FR-mls_1840-low|fr_FR-mls-medium|fr_FR-siwis-low|fr_FR-siwis-medium|fr_FR-tom-medium|fr_FR-upmc-medium|fr-gilles-low|fr-mls_1840-low|fr-siwis-low|fr-siwis-medium|he_IL-saspeech-medium|hi_IN-pratham-medium|hi_IN-priyamvada-medium|hi_IN-rohan-medium|hu_HU-anna-medium|hu_HU-berta-medium|hu_HU-imre-medium|hy_AM-gor-medium|id_ID-news_tts-medium|is-bui-medium|is_IS-bui-medium|is_IS-salka-medium|is_IS-steinn-medium|is_IS-ugla-medium|is-salka-medium|is-steinn-medium|is-ugla-medium|it_IT-paola-medium|it_IT-riccardo-x_low|it-riccardo_fasol-x-low|it_IT-serena-high|it_IT-serena-medium|ja_JA-hi_fi_captain-medium|ka_GE-natia-medium|kk-iseke-x-low|kk-issai-high|kk_KZ-iseke-x_low|kk_KZ-issai-high|kk_KZ-raya-x_low|kk-raya-x-low|ko_KR-kss-medium|ku_TR-berfin_renas-medium|lb_LU-marylux-medium|lv_LV-aivars-medium|ml_IN-arjun-medium|ml_IN-meera-medium|mr_IN-google-medium|ne-google-medium|ne-google-x-low|ne_NP-chitwan-medium|ne_NP-google-medium|ne_NP-google-x_low|nl_BE-nathalie-medium|nl_BE-nathalie-x_low|nl_BE-rdh-medium|nl_BE-rdh-x_low|nl-mls_5809-low|nl-mls_7432-low|nl-nathalie-x-low|nl_NL-alex-medium|nl_NL-mls_5809-low|nl_NL-mls_7432-low|nl_NL-mls-medium|nl_NL-pim-medium|nl_NL-ronnie-medium|nl-rdh-medium|nl-rdh-x-low|no_NO-nvcc-medium|no_NO-talesyntese-medium|no-talesyntese-medium|pl-mls_6892-low|pl_PL-bass-high|pl_PL-darkman-medium|pl_PL-gosia-medium|pl_PL-mc_speech-medium|pl_PL-mls_6892-low|pt_BR-cadu-medium|pt-br-edresson-low|pt_BR-edresson-low|pt_BR-faber-medium|pt_BR-jeff-medium|pt_PT-tugão-medium|ro_RO-mihai-medium|ru-irinia-medium|ru_RU-denis-medium|ru_RU-dmitri-medium|ru_RU-irina-medium|ru_RU-ruslan-medium|sk_SK-lili-medium|sl_SI-artur-medium|sq_AL-edon-medium|sr_RS-serbski_institut-medium|sv_SE-alma-medium|sv_SE-lisa-medium|sv_SE-nst-medium|sw_CD-lanfrica-medium|te_IN-maya-medium|te_IN-padmavathi-medium|te_IN-venkatesh-medium|th_TH-tsync2-medium|tr_TR-dfki-medium|uk-lada-x-low|uk_UA-lada-x_low|uk_UA-mykyta-high|uk_UA-oleksa-high|uk_UA-tetiana-high|uk_UA-ukrainian_tts-medium|ur_PK-aegis_female-medium|ur_PK-fasih-medium|vi-25hours-single-low|vi-vivos-x-low|vi_VN-25hours_single-low|vi_VN-vais1000-medium|vi_VN-vivos-x_low|zh_CN-chaowen-medium|zh_CN-huayan-medium|zh-cn-huayan-x-low|zh_CN-huayan-x_low|zh_CN-xiao_ya-medium)\n",
+     "speaker": "int",
+     "length_scale": "float",
+     "noise_scale": "float",
+     "noise_w": "float",
+     "sentence_silence": "float",
+     "omnivoice_steps": "int(1,)",
+     "enable_japanese": "bool",
+     "enable_thai": "bool",
+     "debug_logging": "bool",
+     "update_voices": "bool"
+    },
+    "ports": {
+     "10200/tcp": null
+    },
+    "homeassistant": "2023.8.0.dev20230718",
+    "image": "homeassistant/{arch}-addon-piper"
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Shutdown Windows machines remotely",
+   "homeassistant": null,
+   "icon": false,
+   "logo": false,
+   "name": "RPC Shutdown",
+   "repository": "core",
+   "slug": "core_rpc_shutdown",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/app-rpc-shutdown",
+   "version_latest": "3.1.0",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "host_network",
+    "stdin"
+   ],
+   "spec": {
+    "version": "3.1.0",
+    "slug": "rpc_shutdown",
+    "name": "RPC Shutdown",
+    "description": "Shutdown Windows machines remotely",
+    "url": "https://github.com/home-assistant/app-rpc-shutdown",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "host_network": true,
+    "image": "ghcr.io/home-assistant/app-rpc-shutdown",
+    "options": {
+     "computers": [
+      {
+       "address": "192.168.0.1",
+       "alias": "test-pc",
+       "credentials": "user%password",
+       "delay": 0,
+       "message": "Home Assistant is shutting down this PC. This cannot be canceled. Please save your work!"
+      }
+     ]
+    },
+    "schema": {
+     "computers": [
+      {
+       "address": "str",
+       "alias": "match(^[\\w-]*$)",
+       "credentials": "match(^[^%]*(?:%.*)?$)",
+       "delay": "int(0,600)?",
+       "message": "str?"
+      }
+     ]
+    },
+    "startup": "services",
+    "stdin": true,
+    "init": false
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Expose Home Assistant folders with SMB/CIFS",
+   "homeassistant": null,
+   "icon": false,
+   "logo": false,
+   "name": "Samba share",
+   "repository": "core",
+   "slug": "core_samba",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/app-samba",
+   "version_latest": "12.11.0",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "host_network"
+   ],
+   "spec": {
+    "version": "12.11.0",
+    "slug": "samba",
+    "name": "Samba share",
+    "description": "Expose Home Assistant folders with SMB/CIFS",
+    "url": "https://github.com/home-assistant/app-samba",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "hassio_api": true,
+    "host_network": true,
+    "image": "ghcr.io/home-assistant/app-samba",
+    "init": false,
+    "log_format": "timestamp",
+    "map": [
+     "local_apps:rw",
+     "all_app_configs:rw",
+     "backup:rw",
+     "homeassistant_config:rw",
+     "media:rw",
+     "share:rw",
+     "ssl:rw"
+    ],
+    "options": {
+     "username": "homeassistant",
+     "password": null,
+     "workgroup": "WORKGROUP",
+     "enabled_shares": [
+      "local_apps",
+      "app_configs",
+      "backup",
+      "config",
+      "media",
+      "share",
+      "ssl"
+     ],
+     "compatibility_mode": false,
+     "apple_compatibility_mode": true,
+     "netbios": true,
+     "local_master": true,
+     "network_discovery": true,
+     "server_signing": "default",
+     "veto_files": [
+      "._*",
+      ".DS_Store",
+      "Thumbs.db",
+      "icon?",
+      ".Trashes"
+     ],
+     "allow_hosts": [
+      "10.0.0.0/8",
+      "172.16.0.0/12",
+      "192.168.0.0/16",
+      "169.254.0.0/16",
+      "fe80::/10",
+      "fc00::/7"
+     ]
+    },
+    "schema": {
+     "username": "str",
+     "password": "password",
+     "workgroup": "str",
+     "enabled_shares": [
+      "match(^(?i:(local_apps|app_configs|addons|addon_configs|backup|config|media|share|ssl))$)"
+     ],
+     "compatibility_mode": "bool",
+     "apple_compatibility_mode": "bool",
+     "netbios": "bool",
+     "local_master": "bool",
+     "network_discovery": "bool",
+     "server_signing": "list(default|auto|mandatory|disabled)",
+     "veto_files": [
+      "str"
+     ],
+     "allow_hosts": [
+      "str"
+     ]
+    },
+    "startup": "services"
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Zigbee and OpenThread multiprotocol add-on",
+   "homeassistant": "2024.1.0",
+   "icon": false,
+   "logo": false,
+   "name": "Silicon Labs Multiprotocol [deprecated]",
+   "repository": "core",
+   "slug": "core_silabs_multiprotocol",
+   "stage": "deprecated",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/addons/tree/master/silabs-multiprotocol\n",
+   "version_latest": "2.4.6",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "host_network",
+    "host_uts",
+    "privileged",
+    "devices",
+    "gpio",
+    "device option (device passthrough)"
+   ],
+   "spec": {
+    "version": "2.4.6",
+    "slug": "silabs_multiprotocol",
+    "name": "Silicon Labs Multiprotocol [deprecated]",
+    "description": "Zigbee and OpenThread multiprotocol add-on",
+    "url": "https://github.com/home-assistant/addons/tree/master/silabs-multiprotocol\n",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "homeassistant": "2024.1.0",
+    "gpio": true,
+    "hassio_api": true,
+    "devices": [
+     "/dev/net/tun"
+    ],
+    "discovery": [
+     "otbr"
+    ],
+    "host_ipc": false,
+    "host_network": true,
+    "host_uts": true,
+    "privileged": [
+     "IPC_LOCK",
+     "NET_ADMIN",
+     "NET_RAW"
+    ],
+    "image": "homeassistant/{arch}-addon-silabs-multiprotocol",
+    "init": false,
+    "options": {
+     "device": null,
+     "baudrate": "460800",
+     "flow_control": true,
+     "autoflash_firmware": true,
+     "cpcd_trace": false,
+     "otbr_enable": true,
+     "otbr_log_level": "notice",
+     "otbr_firewall": true
+    },
+    "ports": {
+     "9999/tcp": null,
+     "8080/tcp": null,
+     "8081/tcp": null
+    },
+    "ports_description": {
+     "9999/tcp": "EmberZNet EZSP/ASH port",
+     "8080/tcp": "OpenThread Web port",
+     "8081/tcp": "OpenThread REST API port"
+    },
+    "schema": {
+     "device": "device(subsystem=tty)?",
+     "baudrate": "list(57600|115200|230400|460800|921600)",
+     "flow_control": "bool?",
+     "network_device": "str?",
+     "autoflash_firmware": "bool",
+     "cpcd_trace": "bool",
+     "otbr_enable": "bool",
+     "otbr_log_level": "list(debug|info|notice|warning|error|critical|alert|emergency)",
+     "otbr_firewall": "bool"
+    },
+    "stage": "deprecated",
+    "startup": "services"
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Silicon Labs firmware flasher add-on",
+   "homeassistant": null,
+   "icon": false,
+   "logo": false,
+   "name": "Silicon Labs Flasher",
+   "repository": "core",
+   "slug": "core_silabs_flasher",
+   "stage": "experimental",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/addons/tree/master/silabs_flasher\n",
+   "version_latest": "0.5.0",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "gpio",
+    "device option (device passthrough)"
+   ],
+   "spec": {
+    "version": "0.5.0",
+    "slug": "silabs_flasher",
+    "name": "Silicon Labs Flasher",
+    "description": "Silicon Labs firmware flasher add-on",
+    "url": "https://github.com/home-assistant/addons/tree/master/silabs_flasher\n",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "gpio": true,
+    "hassio_api": true,
+    "image": "homeassistant/{arch}-addon-silabs-flasher",
+    "init": false,
+    "options": {
+     "device": null,
+     "bootloader_baudrate": "115200",
+     "flow_control": true,
+     "verbose": false
+    },
+    "schema": {
+     "device": "device(subsystem=tty)?",
+     "bootloader_baudrate": "list(57600|115200|230400|460800|921600)",
+     "ezsp_baudrate": "int?",
+     "flow_control": "bool?",
+     "firmware_url": "str?",
+     "verbose": "bool?"
+    },
+    "stage": "experimental",
+    "startup": "once",
+    "boot": "manual"
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Fast and personalized local speech-to-text",
+   "homeassistant": "2023.11.0",
+   "icon": false,
+   "logo": false,
+   "name": "Speech-to-Phrase",
+   "repository": "core",
+   "slug": "core_speech-to-phrase",
+   "stage": "stable",
+   "update_available": false,
+   "url": "http://github.com/OHF-voice/speech-to-phrase",
+   "version_latest": "1.4.5",
+   "version": null,
+   "arch": [
+    "amd64",
+    "aarch64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "homeassistant_api"
+   ],
+   "spec": {
+    "version": "1.4.5",
+    "slug": "speech-to-phrase",
+    "name": "Speech-to-Phrase",
+    "description": "Fast and personalized local speech-to-text",
+    "url": "http://github.com/OHF-voice/speech-to-phrase",
+    "arch": [
+     "amd64",
+     "aarch64"
+    ],
+    "init": false,
+    "discovery": [
+     "wyoming"
+    ],
+    "map": [
+     "share:rw"
+    ],
+    "backup_exclude": [
+     "*/models/*"
+    ],
+    "homeassistant_api": true,
+    "options": {
+     "debug_logging": false
+    },
+    "schema": {
+     "debug_logging": "bool"
+    },
+    "ports": {
+     "10300/tcp": null
+    },
+    "homeassistant": "2023.11.0",
+    "image": "homeassistant/{arch}-addon-speech-to-phrase"
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Allow logging in remotely to Home Assistant using SSH",
+   "homeassistant": null,
+   "icon": false,
+   "logo": false,
+   "name": "Terminal & SSH",
+   "repository": "core",
+   "slug": "core_ssh",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/app-ssh",
+   "version_latest": "10.6.0",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "host_dbus",
+    "uart",
+    "audio",
+    "ingress"
+   ],
+   "spec": {
+    "version": "10.6.0",
+    "slug": "ssh",
+    "name": "Terminal & SSH",
+    "description": "Allow logging in remotely to Home Assistant using SSH",
+    "url": "https://github.com/home-assistant/app-ssh",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "audio": true,
+    "hassio_api": true,
+    "hassio_role": "manager",
+    "host_dbus": true,
+    "image": "ghcr.io/home-assistant/app-ssh",
+    "ingress": true,
+    "init": false,
+    "map": [
+     "local_apps:rw",
+     "all_app_configs:rw",
+     "backup:rw",
+     "homeassistant_config:rw",
+     "media:rw",
+     "share:rw",
+     "ssl:rw"
+    ],
+    "options": {
+     "authorized_keys": [],
+     "password": "",
+     "apks": [],
+     "server": {
+      "tcp_forwarding": false
+     }
+    },
+    "panel_icon": "mdi:console",
+    "panel_title": "Terminal",
+    "ports": {
+     "22/tcp": null
+    },
+    "schema": {
+     "authorized_keys": [
+      "str"
+     ],
+     "password": "password",
+     "apks": [
+      "str"
+     ],
+     "server": {
+      "tcp_forwarding": "bool"
+     }
+    },
+    "startup": "services",
+    "uart": true
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Turn your device into a Media Player with VLC",
+   "homeassistant": "2021.3.0.dev20210216",
+   "icon": false,
+   "logo": false,
+   "name": "VLC",
+   "repository": "core",
+   "slug": "core_vlc",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/app-vlc",
+   "version_latest": "1.2.0",
+   "version": null,
+   "arch": [
+    "aarch64",
+    "amd64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "audio",
+    "ingress"
+   ],
+   "spec": {
+    "version": "1.2.0",
+    "slug": "vlc",
+    "name": "VLC",
+    "description": "Turn your device into a Media Player with VLC",
+    "url": "https://github.com/home-assistant/app-vlc",
+    "arch": [
+     "aarch64",
+     "amd64"
+    ],
+    "audio": true,
+    "discovery": [
+     "vlc_telnet"
+    ],
+    "homeassistant": "2021.3.0.dev20210216",
+    "image": "ghcr.io/home-assistant/app-vlc",
+    "ingress": true,
+    "init": false,
+    "map": [
+     "share:ro",
+     "media:ro"
+    ],
+    "panel_icon": "mdi:vlc",
+    "startup": "services"
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Extra voice support for the next generation voice stack in Home Assistant",
+   "homeassistant": "2026.12.0.dev0",
+   "icon": false,
+   "logo": false,
+   "name": "Voice Support",
+   "repository": "core",
+   "slug": "core_voice_support",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/OHF-Voice/app-voice-support",
+   "version_latest": "0.2.0",
+   "version": null,
+   "arch": [
+    "amd64",
+    "aarch64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "tmpfs"
+   ],
+   "spec": {
+    "version": "0.2.0",
+    "slug": "voice_support",
+    "name": "Voice Support",
+    "description": "Extra voice support for the next generation voice stack in Home Assistant",
+    "url": "https://github.com/OHF-Voice/app-voice-support",
+    "image": "ghcr.io/ohf-voice/app-voice-support",
+    "arch": [
+     "amd64",
+     "aarch64"
+    ],
+    "init": false,
+    "discovery": [
+     "voice_support"
+    ],
+    "ports": {
+     "10900/tcp": null
+    },
+    "ports_description": {
+     "10900/tcp": "Wake word verification (HTTP and websocket)"
+    },
+    "tmpfs": true,
+    "homeassistant": "2026.12.0.dev0"
+   }
+  },
+  {
+   "advanced": false,
+   "available": true,
+   "build": false,
+   "description": "Speech-to-text with Whisper",
+   "homeassistant": "2023.8.0.dev20230728",
+   "icon": false,
+   "logo": false,
+   "name": "Whisper",
+   "repository": "core",
+   "slug": "core_whisper",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/addons/blob/master/whisper",
+   "version_latest": "3.5.3",
+   "version": null,
+   "arch": [
+    "amd64",
+    "aarch64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [],
+   "spec": {
+    "version": "3.5.3",
+    "slug": "whisper",
+    "name": "Whisper",
+    "description": "Speech-to-text with Whisper",
+    "url": "https://github.com/home-assistant/addons/blob/master/whisper",
+    "arch": [
+     "amd64",
+     "aarch64"
+    ],
+    "init": false,
+    "discovery": [
+     "wyoming"
+    ],
+    "backup_exclude": [
+     "models*"
+    ],
+    "map": [
+     "app_config:rw"
+    ],
+    "options": {
+     "model": "auto",
+     "language": "en",
+     "beam_size": 0,
+     "custom_model_type": "faster-whisper",
+     "stt_library": "auto",
+     "whisper_task": "transcribe",
+     "sherpa_streaming": false,
+     "vad_clip": false,
+     "local_files_only": false,
+     "debug_logging": false
+    },
+    "schema": {
+     "model": "list(auto|tiny-int8|tiny|tiny.en|base-int8|base|base.en|small-int8|distil-small.en|small|small.en|distil-medium.en|medium-int8|medium|medium.en|large|large-v1|distil-large-v2|large-v2|distil-large-v3|large-v3|turbo|custom)\n",
+     "stt_library": "list(auto|faster-whisper|sherpa|transformers|onnx-asr|funasr)\n",
+     "custom_model": "str?",
+     "custom_model_type": "list(faster-whisper|sherpa|transformers|onnx-asr|funasr)\n",
+     "language": "list(auto|af|am|ar|as|az|ba|be|bg|bn|bo|br|bs|ca|cs|cy|da|de|el|en|es|et|eu|fa|fi|fo|fr|gl|gu|ha|haw|he|hi|hr|ht|hu|hy|id|is|it|ja|jw|ka|kk|km|kn|ko|la|lb|ln|lo|lt|lv|mg|mi|mk|ml|mn|mr|ms|mt|my|ne|nl|nn|no|oc|pa|pl|ps|pt|ro|ru|sa|sd|si|sk|sl|sn|so|sq|sr|su|sv|sw|ta|te|tg|th|tk|tl|tr|tt|uk|ur|uz|vi|yi|yo|zh|yue)\n",
+     "beam_size": "int",
+     "initial_prompt": "str?",
+     "whisper_task": "list(transcribe|translate)\n",
+     "sherpa_streaming": "bool",
+     "vad_clip": "bool",
+     "local_files_only": "bool",
+     "debug_logging": "bool"
+    },
+    "ports": {
+     "10300/tcp": null
+    },
+    "homeassistant": "2023.8.0.dev20230728",
+    "image": "homeassistant/{arch}-addon-whisper"
+   }
+  },
+  {
+   "advanced": false,
+   "available": false,
+   "build": false,
+   "description": "Control a Z-Wave network with Home Assistant Z-Wave JS",
+   "homeassistant": "2025.12.0",
+   "icon": false,
+   "logo": false,
+   "name": "Z-Wave JS",
+   "repository": "core",
+   "slug": "core_zwave_js",
+   "stage": "stable",
+   "update_available": false,
+   "url": "https://github.com/home-assistant/app-zwave-js",
+   "version_latest": "1.11.0",
+   "version": null,
+   "arch": [
+    "amd64",
+    "aarch64"
+   ],
+   "documentation": true,
+   "installed": false,
+   "unsupported": [
+    "ingress",
+    "device option (device passthrough)"
+   ],
+   "spec": {
+    "version": "1.11.0",
+    "slug": "zwave_js",
+    "name": "Z-Wave JS",
+    "description": "Control a Z-Wave network with Home Assistant Z-Wave JS",
+    "url": "https://github.com/home-assistant/app-zwave-js",
+    "arch": [
+     "amd64",
+     "aarch64"
+    ],
+    "discovery": [
+     "zwave_js"
+    ],
+    "hassio_api": true,
+    "homeassistant": "2025.12.0",
+    "image": "ghcr.io/home-assistant/app-zwave-js",
+    "init": false,
+    "ingress": true,
+    "ingress_port": 8091,
+    "ingress_stream": true,
+    "panel_icon": "mdi:z-wave",
+    "panel_title": "Z-Wave",
+    "map": [
+     "app_config:rw"
+    ],
+    "options": {
+     "log_level": "info",
+     "log_to_file": false,
+     "log_max_files": 7,
+     "rf_region": "Automatic",
+     "soft_reset": "Automatic",
+     "s0_legacy_key": "",
+     "s2_access_control_key": "",
+     "s2_authenticated_key": "",
+     "s2_unauthenticated_key": "",
+     "lr_s2_access_control_key": "",
+     "lr_s2_authenticated_key": ""
+    },
+    "ports": {
+     "3000/tcp": null,
+     "8091/tcp": null
+    },
+    "schema": {
+     "device": "device(subsystem=tty)?",
+     "socket": "str?",
+     "log_level": "list(silly|debug|verbose|http|info|warn|error)?",
+     "log_to_file": "bool?",
+     "log_max_files": "int(1,)?",
+     "rf_region": "list(Automatic|Australia/New Zealand|China|Europe|Europe (Long Range)|Hong Kong|India|Israel|Japan|Korea|Russia|USA|USA (Long Range))?",
+     "soft_reset": "list(Automatic|Enabled|Disabled)?",
+     "s0_legacy_key": "match(|[0-9a-fA-F]{32,32})?",
+     "s2_access_control_key": "match(|[0-9a-fA-F]{32,32})?",
+     "s2_authenticated_key": "match(|[0-9a-fA-F]{32,32})?",
+     "s2_unauthenticated_key": "match(|[0-9a-fA-F]{32,32})?",
+     "lr_s2_access_control_key": "match(|[0-9a-fA-F]{32,32})?",
+     "lr_s2_authenticated_key": "match(|[0-9a-fA-F]{32,32})?",
+     "network_key": "match(|[0-9a-fA-F]{32,32})?",
+     "disable_controller_recovery": "bool?",
+     "disable_watchdog": "bool?",
+     "safe_mode": "bool?"
+    },
+    "startup": "services",
+    "timeout": 30
+   }
+  }
+ ],
+ "repositories": [
+  {
+   "slug": "core",
+   "name": "Official add-ons",
+   "source": "https://github.com/home-assistant/addons",
+   "url": "https://github.com/home-assistant/addons",
+   "maintainer": "Home Assistant"
+  }
+ ]
+}

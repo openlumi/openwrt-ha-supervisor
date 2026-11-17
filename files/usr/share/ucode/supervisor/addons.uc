@@ -11,7 +11,6 @@ import { readfile, writefile, mkdir, popen } from 'fs';
 
 const BASE = '/etc/owrt-supervisor';
 const STATE = BASE + '/addons.json';
-const ARCH = 'armv7';
 
 export function catalog(cfg) {
 	let c;
@@ -24,6 +23,12 @@ export function find(cfg, slug) {
 		if (a.slug == slug)
 			return a;
 	return null;
+};
+
+// Why an add-on cannot run here (the catalog lists runtime features this supervisor lacks).
+export function unavailable_reason(a) {
+	return 'This add-on needs features that owrt-supervisor does not support: ' +
+	       join(', ', a.unsupported ?? ['unknown']);
 };
 
 function read_state() {
@@ -62,21 +67,48 @@ function copy(v) { return json(sprintf('%J', v)); };
 
 // --- container ------------------------------------------------------------------------
 
-function host_dir(cfg, slug, name) {
-	if (name == 'config') return cfg.config_dir;
-	let d = `${BASE}/${name}`;
-	mkdir(BASE);
-	mkdir(d);
-	return d;
+// One entry of an add-on's `map`: "name[:ro|:rw]" or {type, read_only}. Returns a Docker bind.
+// Names follow the Supervisor: config/homeassistant_config = the Home Assistant config dir,
+// app_config/addon_config = the add-on's private config, all_app_configs = every add-on's
+// config, local_apps/addons = local add-ons; the rest (ssl, share, media, backup, ...) are
+// plain directories under /etc/owrt-supervisor.
+function map_bind(cfg, slug, m) {
+	let name, mode = 'ro';
+	if (type(m) == 'object') {
+		name = m.type;
+		mode = m.read_only == false ? 'rw' : 'ro';
+	} else {
+		let p = split(`${m}`, ':');
+		name = p[0];
+		mode = p[1] ?? 'ro';
+	}
+	let host, dest = '/' + name;
+	switch (name) {
+	case 'config':
+		host = cfg.config_dir; dest = '/config'; break;
+	case 'homeassistant_config':
+		host = cfg.config_dir; dest = '/homeassistant'; break;
+	case 'addon_config':
+	case 'app_config':
+		host = `${BASE}/addons/${slug}/config`; dest = '/config'; break;
+	case 'all_addon_configs':
+	case 'all_app_configs':
+		host = `${BASE}/addon_configs`; dest = '/addon_configs'; break;
+	case 'addons':
+	case 'local_apps':
+		host = `${BASE}/local_addons`; dest = '/addons'; break;
+	default:
+		host = `${BASE}/${name}`;
+	}
+	system(`mkdir -p '${host}'`);
+	return `${host}:${dest}:${mode}`;
 };
 
 function container_spec(cfg, slug, entry, spec) {
 	let datadir = `${BASE}/addons/${slug}/data`;
 	let binds = [`${datadir}:/data`];
-	for (let m in spec.map ?? []) {
-		let p = split(`${m}`, ':');
-		push(binds, `${host_dir(cfg, slug, p[0])}:/${p[0]}:${p[1] ?? 'ro'}`);
-	}
+	for (let m in spec.map ?? [])
+		push(binds, map_bind(cfg, slug, m));
 	let exposed = {}, bindings = {};
 	for (let cport, hport in spec.ports ?? {}) {
 		exposed[cport] = {};
@@ -123,8 +155,10 @@ export function install(slug, job) {
 	let a = find(cfg, slug);
 	if (!a) return fail('unknown add-on: ' + slug);
 	let spec = a.spec ?? {};
-	if (!(ARCH in (spec.arch ?? [])))
-		return fail(`add-on does not support ${ARCH}`);
+	if (!(cfg.arch in (spec.arch ?? [])))
+		return fail(`add-on does not support ${cfg.arch}`);
+	if (a.available == false)
+		return fail(unavailable_reason(a));
 	let st = read_state();
 	if (st.addons[slug]) return fail('already installed');
 	if (docker.exists(cname(slug)) != false)
@@ -132,14 +166,15 @@ export function install(slug, job) {
 	let token = new_token();
 	if (!token) return fail('cannot generate token');
 
-	let image = replace(spec.image, '{arch}', ARCH);
+	let image = replace(spec.image, '{arch}', cfg.arch);   // newer images are multi-arch: no {arch}
 	let tag = a.version_latest;
 	step('pulling', 10);
 	let p = docker.pull(image, tag);
 	if (!p.ok) return fail('pull failed: ' + p.error);
 
 	step('creating', 70);
-	let entry = { version: tag, token, boot: 'auto', options: copy(spec.options ?? {}), image };
+	let entry = { version: tag, token, boot: (spec.boot == 'manual' || spec.boot == 'manual_only') ? 'manual' : 'auto',
+	              options: copy(spec.options ?? {}), image };
 	write_options(slug, entry.options);
 	let r = docker.create(cname(slug), container_spec(cfg, slug, entry, spec));
 	if (!r.ok) return fail('create failed: ' + r.error);

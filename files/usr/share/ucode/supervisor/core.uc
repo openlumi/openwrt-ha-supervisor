@@ -83,6 +83,8 @@ export function update(tag, job, backup) {
 		return { ok: false, error: msg };
 	}
 
+	if (!cfg.image)
+		return fail(`no Home Assistant image for architecture "${cfg.arch}": set the image option`);
 	if (!docker.ping()) return fail('docker daemon not reachable');
 
 	if (!tag) {

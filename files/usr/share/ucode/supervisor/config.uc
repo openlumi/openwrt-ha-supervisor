@@ -1,9 +1,11 @@
 'use strict';
 // UCI-backed configuration with defaults.
 import { cursor } from 'uci';
+import { popen } from 'fs';
 
 const DEFAULTS = {
-	image: 'ghcr.io/adyoull/ha-armv7',   // image source (no tag)
+	image: '',                            // '' = official image, or the armv7 community build (see CORE_IMAGES)
+	arch: '',                             // '' = detected (uname -m); set to override
 	container: 'homeassistant',
 	config_dir: '/srv/homeassistant/config',
 	timezone: '',                         // '' = follow the system zone (system.@system[0].zonename)
@@ -18,10 +20,34 @@ const DEFAULTS = {
 	cache_ttl: '3600',
 	core_socket: '/var/run/owrt-supervisor/core/core.sock',   // HA's Supervisor-only unix socket (host side)
 	bridge_ip: '172.17.0.1',               // docker bridge gateway: add-ons reach the API here
-	catalog: '/usr/share/owrt-supervisor/catalog.json',   // add-on catalog (StoreInfo JSON)
+	catalog: '',                          // '' = /usr/share/owrt-supervisor/catalog-<arch>.json (StoreInfo JSON)
 	devices: [],                          // list of /dev/... passthrough
 	backup_before_update: '0',            // policy when the caller does not say; request flag wins
 	backup_dir: '/mnt/docker/owrt-backups',
+};
+
+// uname -m -> Supervisor architecture names
+const ARCH_MAP = {
+	armv7l: 'armv7', armv8l: 'armv7', armv6l: 'armhf', aarch64: 'aarch64', arm64: 'aarch64',
+	x86_64: 'amd64', amd64: 'amd64', i686: 'i386', i386: 'i386'
+};
+
+// Home Assistant Core image per architecture. The official image is multi-arch for amd64 and
+// aarch64 only; upstream dropped armv7, so that one comes from a community build.
+const CORE_IMAGES = {
+	aarch64: 'ghcr.io/home-assistant/home-assistant',
+	amd64: 'ghcr.io/home-assistant/home-assistant',
+	armv7: 'ghcr.io/adyoull/ha-armv7'
+};
+
+export function detect_arch() {
+	let m = getenv('OWRT_SUPERVISOR_ARCH');   // test override
+	if (!m) {
+		let p = popen('uname -m', 'r');
+		m = p ? trim(p.read('all')) : '';
+		if (p) p.close();
+	}
+	return ARCH_MAP[m] ?? m;
 };
 
 export function load() {
@@ -32,6 +58,9 @@ export function load() {
 		cfg[k] = s[k] ?? v;
 	if (!cfg.timezone)
 		cfg.timezone = c.get('system', '@system[0]', 'zonename') || 'UTC';
+	cfg.arch = cfg.arch || detect_arch();
+	cfg.image = cfg.image || CORE_IMAGES[cfg.arch] || '';
+	cfg.catalog = cfg.catalog || `/usr/share/owrt-supervisor/catalog-${cfg.arch}.json`;
 	return cfg;
 };
 

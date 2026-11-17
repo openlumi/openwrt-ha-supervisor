@@ -1,5 +1,9 @@
 config supervisor 'main'
-	option image 'ghcr.io/adyoull/ha-armv7'
+	# The architecture is detected (uname -m) and picks the Home Assistant image and the add-on
+	# catalog: aarch64/amd64 use the official image, armv7 the community build. Override with:
+	# option arch 'armv7'
+	# option image 'ghcr.io/home-assistant/home-assistant'
+	# option catalog '/path/to/catalog.json'
 	option container 'homeassistant'
 	option config_dir '/etc/homeassistant'
 	# option timezone 'Europe/Moscow'   # default: the system time zone
