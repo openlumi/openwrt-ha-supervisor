@@ -28,16 +28,31 @@ export function vcmp(a, b) {
 	return 0;
 };
 
+// All tags matching cfg.tag_regex. Registries return tags in pages sorted lexically, so the
+// newest releases of a big repository (the official image has thousands of tags) are only on
+// the last pages: follow `last=` until a page comes back empty. Any failed page aborts (null),
+// because a partial list would make an old version look like the latest.
 function fetch_tags(cfg) {
 	let img = split_image(cfg.image);
 	let host = img.host, repo = img.repo;
 	let tok = bearer(host, repo, cfg);
 	let headers = tok ? { Authorization: `Bearer ${tok}` } : {};
-	let url = `https://${host}/v2/${repo}/tags/list?n=1000`;
-	let r = http.request(url, { headers });
-	if (!http.ok(r) || !r.json?.tags)
-		return null;
-	return r.json.tags;
+	let rx = regexp(cfg.tag_regex);
+	let out = [], last = null;
+	for (let page = 0; page < 60; page++) {
+		let url = `https://${host}/v2/${repo}/tags/list?n=1000` + (last ? `&last=${last}` : '');
+		let r = http.request(url, { headers });
+		if (!http.ok(r) || !r.json)
+			return null;
+		let tags = r.json.tags ?? [];
+		if (!length(tags))
+			break;
+		for (let t in tags)
+			if (match(t, rx))
+				push(out, t);
+		last = tags[length(tags) - 1];
+	}
+	return length(out) ? out : null;
 };
 
 // Returns { latest, tags, checked } ; cached for cfg.cache_ttl seconds.
@@ -56,8 +71,7 @@ export function check(cfg, force) {
 	if (!tags)
 		return null;
 
-	let rx = regexp(cfg.tag_regex);
-	let rel = sort(filter(tags, t => match(t, rx)), vcmp);
+	let rel = sort(tags, vcmp);
 	let res = {
 		image: cfg.image,
 		checked: time(),
